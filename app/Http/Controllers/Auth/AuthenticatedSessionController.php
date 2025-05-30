@@ -27,14 +27,21 @@ public function store(LoginRequest $request): JsonResponse
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request): Response
+    public function destroy(Request $request): JsonResponse
     {
-        Auth::guard('web')->logout();
+        // Ensure the user is authenticated before proceeding
+        if ($request->user()) {
+            Auth::guard('web')->logout();
 
-        $request->session()->invalidate();
+            // Check if the session exists before invalidating it
+            if ($request->hasSession()) {
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+            }
 
-        $request->session()->regenerateToken();
+            return response()->json(['message' => 'Logout successful']);
+        }
 
-        return response()->noContent();
+        return response()->json(['message' => 'No authenticated user found'], Response::HTTP_UNAUTHORIZED);
     }
 }
