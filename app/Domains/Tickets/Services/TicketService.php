@@ -47,7 +47,9 @@ class TicketService
         // Vérifier la validité de la transition
         if (!$this->estTransitionValide($statutActuel, $nouveauStatut)) {
             throw new StatutInvalideException(
-                "La transition de statut de '{$statutActuel->toString()}' vers '{$nouveauStatut->toString()}' n'est pas autorisée"
+                "",
+                $statutActuel,
+                $nouveauStatut
             );
         }
         
@@ -85,7 +87,7 @@ class TicketService
     {
         // Vérifier que le contenu du commentaire n'est pas vide
         if (empty(trim($contenu))) {
-            throw new RegleMetierException('Le contenu du commentaire ne peut pas être vide');
+            throw RegleMetierException::commentaireVide();
         }
         
         // Vérifier les permissions pour les commentaires privés
@@ -113,7 +115,8 @@ class TicketService
     {
         // Vérifier que l'utilisateur est autorisé à assigner des tickets
         if (!$utilisateurEffectuantAction->estAdministrateur() && !$utilisateurEffectuantAction->estSuperviseur()) {
-            throw new RegleMetierException('Seuls les administrateurs et superviseurs peuvent assigner des tickets');
+        throw RegleMetierException::autorisationInsuffisante('assigner un ticket', 'administrateur ou superviseur');
+
         }
         
         // Vérifier que la personne assignée est bien un technicien
