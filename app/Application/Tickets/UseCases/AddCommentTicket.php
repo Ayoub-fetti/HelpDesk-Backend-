@@ -2,12 +2,12 @@
 
 namespace App\Application\Tickets\UseCases;
 
-use App\Application\Tickets\DTOs\NouveauCommentaireDTO;
+use App\Application\Tickets\DTOs\NewCommentDTO;
 use App\Domains\Tickets\Repositories\TicketRepositoryInterface;
 use App\Domains\Tickets\Services\TicketService;
-use App\Domains\Shared\ValueObjects\IdentiteUtilisateur;
+use App\Domains\Shared\ValueObjects\IdentiteUser;
 
-class AjouterCommentaireTicket
+class AddCommentTicket
 {
     private $ticketRepository;
     private $ticketService;
@@ -17,7 +17,7 @@ class AjouterCommentaireTicket
         $this->ticketService = $ticketService;
     }
 
-    public function execute(NouveauCommentaireDTO $dto): int
+    public function execute(NewCommentDTO $dto): int
     {
         // Récupérer le ticket depuis le repository
         $ticket = $this->ticketRepository->findById($dto->ticketId);
@@ -27,25 +27,25 @@ class AjouterCommentaireTicket
         }
 
         // Créer l'identité de l'utilisateur effectuant l'action
-        $utilisateur = new IdentiteUtilisateur(
-            $dto->utilisateurId,
-            $dto->utilisateurNom,
-            $dto->utilisateurPrenom,
-            $dto->utilisateurEmail,  
-            $dto->utilisateurType
+        $user = new IdentiteUser(
+            $dto->userId,
+            $dto->userLastName,
+            $dto->userFirstName,
+            $dto->userEmail,  
+            $dto->userType
         );
 
         // Appeler le service de domaine pour ajouter le commentaire
-        $this->ticketService->ajouterCommentaire(
+        $this->ticketService->addComment(
             $ticket,
-            $dto->contenu,
-            $utilisateur,
-            $dto->estPrive ?? false
+            $dto->content,
+            $user,
+            $dto->isPrivate ?? false
         );
         
         // Sauvegarder les modifications et récupérer l'ID du commentaire
-        $commentaireId = $this->ticketRepository->update($ticket);
+        $commentId = $this->ticketRepository->update($ticket);
         
-        return $commentaireId;
+        return (int) $commentId;
     }
 }

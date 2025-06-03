@@ -2,45 +2,31 @@
 
 namespace App\Application\Tickets\DTOs;
 
-class ReassignationTicketDTO
+class ChangeStatutDTO
 {
     public int $ticketId;
+    public string $newStatut;
     public string $comment;
     
-    // Informations sur l'utilisateur effectuant la réassignation
+    // Informations sur l'utilisateur effectuant le changement
     public int $userId;
     public string $userLastName;
     public string $userFirstName;
     public string $userEmail;
     public string $userType;
     
-    // Informations sur le technicien à assigner
-    public int $technicianId;
-    public string $technicianLastName;
-    public string $technicianFirstName;
-    public string $technicianEmail;
-    public string $technicianPhone;
-    
     public function __construct(
         int $ticketId,
-        int $technicianId,
-        string $technicianLastName,
-        string $technicianFirstName,
-        string $technicianEmail,
+        string $newStatut,
         int $userId,
         string $userLastName,
         string $userFirstName,
         string $userType,
         string $userEmail,
-        string $technicianPhone = '',
         string $comment = ''
     ) {
         $this->ticketId = $ticketId;
-        $this->technicianId = $technicianId;
-        $this->technicianLastName = $technicianLastName;
-        $this->technicianFirstName = $technicianFirstName;
-        $this->technicianEmail = $technicianEmail;
-        $this->technicianPhone = $technicianPhone;
+        $this->newStatut = $newStatut;
         $this->userId = $userId;
         $this->userLastName = $userLastName;
         $this->userFirstName = $userFirstName;

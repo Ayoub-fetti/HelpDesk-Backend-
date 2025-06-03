@@ -114,9 +114,9 @@ class EloquentTicketRepository implements TicketRepositoryInterface
     {
         $commentModel = CommentModel::create([
             'ticket_id' => $ticketId ?? $comment->getTicketId(),
-            'utilisateur_id' => $comment->getAuthorId(),
-            'contenu' => $comment->getContent(),
-            'prive' => $comment->isPrivate(),
+            'user_id' => $comment->getAuthorId(),
+            'content' => $comment->getContent(),
+            'private' => $comment->isPrivate(),
         ]);
         
         return $commentModel->id;
@@ -287,7 +287,7 @@ class EloquentTicketRepository implements TicketRepositoryInterface
             $commentModel->id,
             $commentModel->ticket_id,
             $commentModel->user_id,
-            $commentModel->comtent,
+            $commentModel->content,
             (bool) $commentModel->private,
             new DateTime($commentModel->created_at)
         );

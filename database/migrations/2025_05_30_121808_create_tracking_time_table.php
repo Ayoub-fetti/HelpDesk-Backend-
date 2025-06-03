@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('ticket_id')->constrained()->onDelete('cascade');
             $table->foreignId('technician_id')->constrained('users');
-            $table->timestamp('strat_date');
+            $table->timestamp('start_date');
             $table->timestamp('end_date')->nullable();
             $table->float('duration')->default(0);
             $table->text('description')->nullable();

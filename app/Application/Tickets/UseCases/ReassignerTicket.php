@@ -5,7 +5,7 @@ namespace App\Application\Tickets\UseCases;
 use App\Application\Tickets\DTOs\ReassignationTicketDTO;
 use App\Domains\Tickets\Repositories\TicketRepositoryInterface;
 use App\Domains\Tickets\Services\TicketService;
-use App\Domains\Shared\ValueObjects\IdentiteUtilisateur;
+use App\Domains\Shared\ValueObjects\IdentiteUser;
 
 class ReassignerTicket
 {
@@ -30,25 +30,26 @@ class ReassignerTicket
         }
 
         // Créer l'identité de l'utilisateur effectuant l'action
-        $utilisateurEffectuantAction = new IdentiteUtilisateur(
-            $dto->utilisateurId,
-            $dto->utilisateurNom,
-            $dto->utilisateurPrenom,
-            $dto->utilisateurEmail,  
-            $dto->utilisateurType
+        $userEffectuantAction = new IdentiteUser(
+            $dto->userId,
+            $dto->userLastName,
+            $dto->userFirstName,
+            $dto->userEmail,  
+            $dto->userType
         );
 
         // Créer l'identité du technicien à assigner
-        $technicien = new IdentiteUtilisateur(
-            $dto->technicienId,
-            $dto->technicienNom,
+        $technician = new IdentiteUser(
+            $dto->technicianId,
+            $dto->technicianLastName,
+            $dto->technicianFirstName,
             'technicien',
-            $dto->technicienEmail,
-            $dto->technicienTelephone
+            $dto->technicianEmail,
+            $dto->technicianPhone
         );
 
         // Appeler le service de domaine pour assigner le technicien
-        $this->ticketService->assignerTechnicien($ticket, $technicien, $utilisateurEffectuantAction);
+        $this->ticketService->assignTechnician($ticket, $technician, $userEffectuantAction);
         
         // Sauvegarder les modifications
         $this->ticketRepository->update($ticket);

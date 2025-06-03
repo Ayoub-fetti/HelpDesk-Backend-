@@ -2,13 +2,13 @@
 
 namespace App\Application\Tickets\UseCases;
 
-use App\Application\Tickets\DTOs\ClotureTicketDTO;
+use App\Application\Tickets\DTOs\CloseTicketDTO;
 use App\Domains\Tickets\Repositories\TicketRepositoryInterface;
 use App\Domains\Tickets\Services\TicketService;
 use App\Domains\Tickets\ValueObjects\StatutTicket;
-use App\Domains\Shared\ValueObjects\IdentiteUtilisateur;
+use App\Domains\Shared\ValueObjects\IdentiteUser;
 
-class CloturerTicket
+class CloseTicket
 {
     private $ticketRepository;
     private $ticketService;
@@ -21,7 +21,7 @@ class CloturerTicket
         $this->ticketService = $ticketService;
     }
 
-    public function execute(ClotureTicketDTO $dto): void
+    public function execute(CloseTicketDTO $dto): void
     {
         // Récupérer le ticket depuis le repository
         $ticket = $this->ticketRepository->findById($dto->ticketId);
@@ -31,21 +31,21 @@ class CloturerTicket
         }
 
         // Créer l'identité de l'utilisateur effectuant l'action
-        $utilisateur = new IdentiteUtilisateur(
-            $dto->utilisateurId,
-            $dto->utilisateurNom,
-            $dto->utilisateurPrenom,
-            $dto->utilisateurEmail,  
-            $dto->utilisateurType
+        $user = new IdentiteUser(
+            $dto->userId,
+            $dto->userLastName,
+            $dto->userFirstName,
+            $dto->userEmail,  
+            $dto->userType
         );
 
         // Si une solution est fournie, résoudre d'abord le ticket
-        if ($ticket->getStatut() !== StatutTicket::RESOLU && !empty($dto->solution)) {
-            $this->ticketService->resoudreTicket($ticket, $dto->solution, $utilisateur);
+        if ($ticket->getStatut() !== StatutTicket::RESOLVED && !empty($dto->solution)) {
+            $this->ticketService->resolveTicket($ticket, $dto->solution, $user);
         }
 
         // Appeler le service de domaine pour changer le statut à FERMÉ
-        $this->ticketService->changerStatut($ticket, StatutTicket::FERME, $utilisateur);
+        $this->ticketService->changeStatut($ticket, StatutTicket::CLOSED, $user);
         
         // Sauvegarder les modifications
         $this->ticketRepository->update($ticket);
