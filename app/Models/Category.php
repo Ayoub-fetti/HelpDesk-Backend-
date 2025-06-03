@@ -13,17 +13,17 @@ class Category extends Model
     protected $table = 'categories';
     
     protected $fillable = [
-        'nom',
+        'name',
         'description',
-        'actif',
+        'active',
     ];
     
     protected $casts = [
-        'actif' => 'boolean',
+        'active' => 'boolean',
     ];
     
     public function tickets(): HasMany
     {
-        return $this->hasMany(Ticket::class, 'categorie_id');
+        return $this->hasMany(Ticket::class, 'category_id');
     }
 }

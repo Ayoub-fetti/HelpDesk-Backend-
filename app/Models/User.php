@@ -14,15 +14,15 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'nom',
-        'prenom',
+        'lastName',
+        'firstName',
         'email',
         'password',
         'departement',
-        'type_utilisateur',
-        'actif',
-        'derniere_connexion',
-        'specialisation',
+        'user_type',
+        'active',
+        'last_connection',
+        'specialization',
     ];
 
     protected $hidden = [
@@ -42,51 +42,51 @@ class User extends Authenticatable
 
     public function ticketsAssignes(): HasMany
     {
-        return $this->hasMany(Ticket::class, 'technicien_id');
+        return $this->hasMany(Ticket::class, 'technician_id');
     }
 
-    public function ticketsOuverts(): HasMany
+    public function ticketsOpen(): HasMany
     {
-        return $this->hasMany(Ticket::class, 'utilisateur_id');
+        return $this->hasMany(Ticket::class, 'user_id');
     }
     
-    public function commentaires(): HasMany
+    public function comments(): HasMany
     {
-        return $this->hasMany(Commentaire::class, 'utilisateur_id');
+        return $this->hasMany(Comment::class, 'user_id');
     }
     
-    public function suiviTemps(): HasMany
+    public function trackingTimes(): HasMany
     {
-        return $this->hasMany(SuiviTemps::class, 'technicien_id');
+        return $this->hasMany(TrackingTime::class, 'technician_id');
     }
     
     public function feedbacks(): HasMany
     {
-        return $this->hasMany(Feedback::class, 'utilisateur_id');
+        return $this->hasMany(Feedback::class, 'user_id');
     }
     
     public function notifications(): HasMany
     {
-        return $this->hasMany(Notification::class, 'utilisateur_id');
+        return $this->hasMany(Notification::class, 'user_id');
     }
     
-    public function rapports(): HasMany
+    public function reports(): HasMany
     {
-        return $this->hasMany(Rapport::class, 'generer_par_id');
+        return $this->hasMany(Report::class, 'genretae_by_id');
     }
     
-    public function estTechnicien(): bool
+    public function isTechnician(): bool
     {
-        return $this->type_utilisateur === 'technicien';
+        return $this->user_type === 'technician';
     }
     
-    public function estAdministrateur(): bool
+    public function isAdministrator(): bool
     {
-        return $this->type_utilisateur === 'administrateur';
+        return $this->user_type === 'administrator';
     }
     
-    public function getNomComplet(): string
+    public function getFullName(): string
     {
-        return $this->prenom . ' ' . $this->nom;
+        return $this->firstName . ' ' . $this->lastName;
     }
 }

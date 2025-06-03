@@ -12,9 +12,9 @@ class Feedback extends Model
     
     protected $fillable = [
         'ticket_id',
-        'utilisateur_id',
+        'user_id',
         'note',
-        'commentaire',
+        'comment',
     ];
     
     protected $casts = [
@@ -26,8 +26,8 @@ class Feedback extends Model
         return $this->belongsTo(Ticket::class);
     }
     
-    public function utilisateur(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'utilisateur_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

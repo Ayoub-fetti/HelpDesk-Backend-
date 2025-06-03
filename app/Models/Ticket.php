@@ -13,51 +13,51 @@ class Ticket extends Model
     use HasFactory;
     
     protected $fillable = [
-        'titre',
+        'title',
         'description',
-        'utilisateur_id',
-        'technicien_id',
-        'categorie_id',
-        'priorite',
+        'user_id',
+        'technician_id',
+        'category_id',
+        'priority',
         'statut',
-        'date_resolution',
+        'resolution_date',
         'solution',
-        'temps_passe_total',
+        'time_pass_total',
     ];
     
     protected $casts = [
-        'date_resolution' => 'datetime',
-        'temps_passe_total' => 'float',
+        'resolution_date' => 'datetime',
+        'time_pass_total' => 'float',
     ];
     
-    public function utilisateur(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'utilisateur_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
     
-    public function technicien(): BelongsTo
+    public function technician(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'technicien_id');
+        return $this->belongsTo(User::class, 'technician_id');
     }
     
-    public function categorie(): BelongsTo
+    public function category(): BelongsTo
     {
-        return $this->belongsTo(Category::class, 'categorie_id');
+        return $this->belongsTo(Category::class, 'category_id');
     }
     
-    public function commentaires(): HasMany
+    public function Comments(): HasMany
     {
-        return $this->hasMany(Commentaire::class);
+        return $this->hasMany(Comment::class);
     }
     
-    public function piecesJointes(): HasMany
+    public function attachments(): HasMany
     {
-        return $this->hasMany(PieceJointe::class);
+        return $this->hasMany(Attachment::class);
     }
     
-    public function suiviTemps(): HasMany
+    public function trackingTimes(): HasMany
     {
-        return $this->hasMany(SuiviTemps::class);
+        return $this->hasMany(TrackingTime::class);
     }
     
     public function feedback(): HasOne
@@ -65,13 +65,13 @@ class Ticket extends Model
         return $this->hasOne(Feedback::class);
     }
     
-    public function scopeOuverts($query)
+    public function scopeOpens($query)
     {
-        return $query->whereNotIn('statut', ['résolu', 'fermé']);
+        return $query->whereNotIn('statut', ['resolved', 'closed']);
     }
     
-    public function scopeFermes($query)
+    public function scopeCloses($query)
     {
-        return $query->whereIn('statut', ['résolu', 'fermé']);
+        return $query->whereIn('statut', ['resolved', 'closed']);
     }
 }
