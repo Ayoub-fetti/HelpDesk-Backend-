@@ -2,13 +2,12 @@
 
 namespace App\Application\Tickets\UseCases;
 
-use App\Application\Tickets\DTOs\ClotureTicketDTO;
+use App\Application\Tickets\DTOs\ReassignationTicketDTO;
 use App\Domains\Tickets\Repositories\TicketRepositoryInterface;
 use App\Domains\Tickets\Services\TicketService;
-use App\Domains\Tickets\ValueObjects\StatutTicket;
 use App\Domains\Shared\ValueObjects\IdentiteUtilisateur;
 
-class CloturerTicket
+class ReassignerTicket
 {
     private $ticketRepository;
     private $ticketService;
@@ -21,7 +20,7 @@ class CloturerTicket
         $this->ticketService = $ticketService;
     }
 
-    public function execute(ClotureTicketDTO $dto): void
+    public function execute(ReassignationTicketDTO $dto): void
     {
         // Récupérer le ticket depuis le repository
         $ticket = $this->ticketRepository->findById($dto->ticketId);
@@ -31,7 +30,7 @@ class CloturerTicket
         }
 
         // Créer l'identité de l'utilisateur effectuant l'action
-        $utilisateur = new IdentiteUtilisateur(
+        $utilisateurEffectuantAction = new IdentiteUtilisateur(
             $dto->utilisateurId,
             $dto->utilisateurNom,
             $dto->utilisateurPrenom,
@@ -39,13 +38,17 @@ class CloturerTicket
             $dto->utilisateurType
         );
 
-        // Si une solution est fournie, résoudre d'abord le ticket
-        if ($ticket->getStatut() !== StatutTicket::RESOLU && !empty($dto->solution)) {
-            $this->ticketService->resoudreTicket($ticket, $dto->solution, $utilisateur);
-        }
+        // Créer l'identité du technicien à assigner
+        $technicien = new IdentiteUtilisateur(
+            $dto->technicienId,
+            $dto->technicienNom,
+            'technicien',
+            $dto->technicienEmail,
+            $dto->technicienTelephone
+        );
 
-        // Appeler le service de domaine pour changer le statut à FERMÉ
-        $this->ticketService->changerStatut($ticket, StatutTicket::FERME, $utilisateur);
+        // Appeler le service de domaine pour assigner le technicien
+        $this->ticketService->assignerTechnicien($ticket, $technicien, $utilisateurEffectuantAction);
         
         // Sauvegarder les modifications
         $this->ticketRepository->update($ticket);

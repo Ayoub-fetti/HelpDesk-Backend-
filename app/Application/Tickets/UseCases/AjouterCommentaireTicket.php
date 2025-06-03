@@ -2,26 +2,22 @@
 
 namespace App\Application\Tickets\UseCases;
 
-use App\Application\Tickets\DTOs\ClotureTicketDTO;
+use App\Application\Tickets\DTOs\NouveauCommentaireDTO;
 use App\Domains\Tickets\Repositories\TicketRepositoryInterface;
 use App\Domains\Tickets\Services\TicketService;
-use App\Domains\Tickets\ValueObjects\StatutTicket;
 use App\Domains\Shared\ValueObjects\IdentiteUtilisateur;
 
-class CloturerTicket
+class AjouterCommentaireTicket
 {
     private $ticketRepository;
     private $ticketService;
 
-    public function __construct(
-        TicketRepositoryInterface $ticketRepository,
-        TicketService $ticketService
-    ) {
+    public function __construct(TicketRepositoryInterface $ticketRepository,TicketService $ticketService) {
         $this->ticketRepository = $ticketRepository;
         $this->ticketService = $ticketService;
     }
 
-    public function execute(ClotureTicketDTO $dto): void
+    public function execute(NouveauCommentaireDTO $dto): int
     {
         // Récupérer le ticket depuis le repository
         $ticket = $this->ticketRepository->findById($dto->ticketId);
@@ -39,15 +35,17 @@ class CloturerTicket
             $dto->utilisateurType
         );
 
-        // Si une solution est fournie, résoudre d'abord le ticket
-        if ($ticket->getStatut() !== StatutTicket::RESOLU && !empty($dto->solution)) {
-            $this->ticketService->resoudreTicket($ticket, $dto->solution, $utilisateur);
-        }
-
-        // Appeler le service de domaine pour changer le statut à FERMÉ
-        $this->ticketService->changerStatut($ticket, StatutTicket::FERME, $utilisateur);
+        // Appeler le service de domaine pour ajouter le commentaire
+        $this->ticketService->ajouterCommentaire(
+            $ticket,
+            $dto->contenu,
+            $utilisateur,
+            $dto->estPrive ?? false
+        );
         
-        // Sauvegarder les modifications
-        $this->ticketRepository->update($ticket);
+        // Sauvegarder les modifications et récupérer l'ID du commentaire
+        $commentaireId = $this->ticketRepository->update($ticket);
+        
+        return $commentaireId;
     }
 }

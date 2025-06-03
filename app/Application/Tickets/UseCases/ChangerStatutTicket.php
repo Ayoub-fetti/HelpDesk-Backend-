@@ -2,26 +2,23 @@
 
 namespace App\Application\Tickets\UseCases;
 
-use App\Application\Tickets\DTOs\ClotureTicketDTO;
+use App\Application\Tickets\DTOs\ChangementStatutDTO;
 use App\Domains\Tickets\Repositories\TicketRepositoryInterface;
 use App\Domains\Tickets\Services\TicketService;
 use App\Domains\Tickets\ValueObjects\StatutTicket;
 use App\Domains\Shared\ValueObjects\IdentiteUtilisateur;
 
-class CloturerTicket
+class ChangerStatutTicket
 {
     private $ticketRepository;
     private $ticketService;
 
-    public function __construct(
-        TicketRepositoryInterface $ticketRepository,
-        TicketService $ticketService
-    ) {
+    public function __construct(TicketRepositoryInterface $ticketRepository,TicketService $ticketService) {
         $this->ticketRepository = $ticketRepository;
         $this->ticketService = $ticketService;
     }
 
-    public function execute(ClotureTicketDTO $dto): void
+    public function execute(ChangementStatutDTO $dto): void
     {
         // Récupérer le ticket depuis le repository
         $ticket = $this->ticketRepository->findById($dto->ticketId);
@@ -39,13 +36,11 @@ class CloturerTicket
             $dto->utilisateurType
         );
 
-        // Si une solution est fournie, résoudre d'abord le ticket
-        if ($ticket->getStatut() !== StatutTicket::RESOLU && !empty($dto->solution)) {
-            $this->ticketService->resoudreTicket($ticket, $dto->solution, $utilisateur);
-        }
-
-        // Appeler le service de domaine pour changer le statut à FERMÉ
-        $this->ticketService->changerStatut($ticket, StatutTicket::FERME, $utilisateur);
+        // Convertir la chaîne de statut en objet StatutTicket
+        $nouveauStatut = StatutTicket::fromString($dto->nouveauStatut);
+        
+        // Appeler le service de domaine pour changer le statut
+        $this->ticketService->changerStatut($ticket, $nouveauStatut, $utilisateur);
         
         // Sauvegarder les modifications
         $this->ticketRepository->update($ticket);
