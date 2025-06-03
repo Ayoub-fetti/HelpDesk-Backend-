@@ -13,16 +13,16 @@ return new class extends Migration
     {
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
-            $table->string('titre');
+            $table->string('title');
             $table->text('description');
-            $table->foreignId('utilisateur_id')->constrained('users');
-            $table->foreignId('technicien_id')->nullable()->constrained('users');
-            $table->foreignId('categorie_id')->constrained('categories');
-            $table->enum('priorite', ['basse', 'moyenne', 'haute', 'urgente'])->default('moyenne');
-            $table->enum('statut', ['nouveau', 'assigné', 'en_cours', 'en_attente', 'résolu', 'fermé', 'rouvert'])->default('nouveau');
-            $table->timestamp('date_resolution')->nullable();
+            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('technician_id')->nullable()->constrained('users');
+            $table->foreignId('category_id')->constrained('categories');
+            $table->enum('priority', ['low', 'average', 'high', 'urgent'])->default('average');
+            $table->enum('statut', ['new', 'assigned', 'in_progress', 'on_hold', 'resolved', 'closed', 'reopen'])->default('new');
+            $table->timestamp('resolution_date')->nullable();
             $table->text('solution')->nullable();
-            $table->float('temps_passe_total')->default(0);
+            $table->float('time_pass_total')->default(0);
             $table->timestamps();
         });
     }

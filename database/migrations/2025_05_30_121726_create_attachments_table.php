@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pieces_jointes', function (Blueprint $table) {
+        Schema::create('attachments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ticket_id')->constrained()->onDelete('cascade');
-            $table->string('nom_fichier');
-            $table->string('chemin_fichier');
+            $table->string('file_name');
+            $table->string('file_path');
             $table->string('type_mime');
-            $table->integer('taille_fichier');
-            $table->timestamp('date_upload')->useCurrent();
+            $table->integer('file_size');
+            $table->timestamp('upload_date')->useCurrent();
             $table->timestamps();
         });
     }
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pieces_jointes');
+        Schema::dropIfExists('attachments');
     }
 };

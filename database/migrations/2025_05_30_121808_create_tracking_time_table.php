@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('suivi_temps', function (Blueprint $table) {
+        Schema::create('tracking_times', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ticket_id')->constrained()->onDelete('cascade');
-            $table->foreignId('technicien_id')->constrained('users');
-            $table->timestamp('date_debut');
-            $table->timestamp('date_fin')->nullable();
-            $table->float('duree')->default(0);
+            $table->foreignId('technician_id')->constrained('users');
+            $table->timestamp('strat_date');
+            $table->timestamp('end_date')->nullable();
+            $table->float('duration')->default(0);
             $table->text('description')->nullable();
             $table->timestamps();
         });
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('suivi_temps');
+        Schema::dropIfExists('tracking_times');
     }
 };

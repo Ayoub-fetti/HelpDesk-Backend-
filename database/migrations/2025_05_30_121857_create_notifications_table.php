@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('utilisateur_id')->constrained('users');
-            $table->string('titre');
+            $table->foreignId('user_id')->constrained('users');
+            $table->string('title');
             $table->text('message');
             $table->string('type');
-            $table->boolean('lu')->default(false);
+            $table->boolean('read')->default(false);
             $table->timestamps();
         });
     }

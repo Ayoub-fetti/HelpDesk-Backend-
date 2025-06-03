@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rapports', function (Blueprint $table) {
+        Schema::create('reports', function (Blueprint $table) {
             $table->id();
-            $table->string('nom');
+            $table->string('name');
             $table->string('type');
-            $table->text('contenu');
-            $table->foreignId('generer_par_id')->constrained('users');
-            $table->timestamp('date_generation')->useCurrent();
+            $table->text('content');
+            $table->foreignId('genretae_by_id')->constrained('users');
+            $table->timestamp('generation_date')->useCurrent();
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('rapports');
+        Schema::dropIfExists('reports');
     }
 };

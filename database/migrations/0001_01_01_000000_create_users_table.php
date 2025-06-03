@@ -13,21 +13,21 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('nom');
-            $table->string('prenom');
+            $table->string('lastName');
+            $table->string('firstName');
             $table->string('email')->unique();
             $table->string('password');
             $table->string('departement')->nullable();
-            $table->enum('type_utilisateur', ['administrateur', 'technicien', 'superviseur', 'utilisateur_final'])->nullable();
+            $table->enum('user_type', ['administrator', 'technician', 'supervisor', 'final_user'])->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->boolean('actif')->default(true);
-            $table->timestamp('derniere_connexion')->nullable();
+            $table->boolean('active')->default(true);
+            $table->timestamp('last_connection')->nullable();
             // Technicien specific fields
-            $table->string('specialisation')->nullable(); // For technicien
-            $table->integer('charge_actuelle')->default(0); // For technicien
-            $table->integer('nombre_ticket_resolu')->default(0); // For technicien
+            $table->string('specialization')->nullable(); // For technicien
+            $table->integer('current_charge')->default(0); // For technicien
+            $table->integer('number_ticket_resolved')->default(0); // For technicien
             // UtilisateurFinal specific fields
-            $table->integer('nombre_ticket_ouvertes')->default(0); // For utilisateur_final
+            $table->integer('number_open_tickets')->default(0); // For utilisateur_final
             $table->rememberToken();
             $table->timestamps();
         });

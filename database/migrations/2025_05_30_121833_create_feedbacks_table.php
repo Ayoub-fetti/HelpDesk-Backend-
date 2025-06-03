@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('feedbacks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ticket_id')->constrained()->onDelete('cascade');
-            $table->foreignId('utilisateur_id')->constrained('users');
+            $table->foreignId('user_id')->constrained('users');
             $table->integer('note');
-            $table->text('commentaire')->nullable();
+            $table->text('comment')->nullable();
             $table->timestamps();
         });
     }
