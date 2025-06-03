@@ -3,47 +3,47 @@
 namespace App\Domains\Tickets\Entities;
 
 use App\Domains\Tickets\ValueObjects\StatutTicket;
-use App\Domains\Tickets\ValueObjects\PrioriteTicket;
-use App\Domains\Shared\ValueObjects\IdentiteUtilisateur;
+use App\Domains\Tickets\ValueObjects\PriorityTicket;
+use App\Domains\Shared\ValueObjects\IdentiteUser;
 use DateTime;
 
 class Ticket 
 {
     private int $id;
-    private string $titre;
+    private string $title;
     private string $description;
     private StatutTicket $statut;
-    private PrioriteTicket $priorite;
-    private IdentiteUtilisateur $utilisateur;
-    private ?IdentiteUtilisateur $technicien = null;
-    private int $categorieId;
-    private DateTime $dateCreation;
-    private ?DateTime $dateResolution = null;
+    private PriorityTicket $priority;
+    private IdentiteUser $user;
+    private ?IdentiteUser $technician = null;
+    private int $categoryId;
+    private DateTime $creationDate;
+    private ?DateTime $resolutionDate = null;
     private ?string $solution = null;
-    private float $tempsPasse = 0;
+    private float $timePass = 0;
     
-    private array $commentaires = [];
-    private array $piecesJointes = [];
-    private ?float $evaluation = null; 
+    private array $comments = [];
+    private array $attachments = [];
+    private ?float $assessment = null; 
 
     public function __construct(
         int $id,
-        string $titre,
+        string $title,
         string $description,
         StatutTicket $statut,
-        PrioriteTicket $priorite,
-        IdentiteUtilisateur $utilisateur,
-        int $categorieId,
-        DateTime $dateCreation
+        PriorityTicket $priority,
+        IdentiteUser $user,
+        int $categoryId,
+        DateTime $creationDate
     ) {
         $this->id = $id;
-        $this->titre = $titre;
+        $this->title = $title;
         $this->description = $description;
         $this->statut = $statut;
-        $this->priorite = $priorite;
-        $this->utilisateur = $utilisateur;
-        $this->categorieId = $categorieId;
-        $this->dateCreation = $dateCreation;
+        $this->priority = $priority;
+        $this->user = $user;
+        $this->categoryId = $categoryId;
+        $this->creationDate = $creationDate;
     }
 
     // Getters et setters
@@ -52,14 +52,14 @@ class Ticket
         return $this->id;
     }
 
-    public function getTitre(): string
+    public function getTitle(): string
     {
-        return $this->titre;
+        return $this->title;
     }
 
-    public function setTitre(string $titre): void
+    public function setTitle(string $title): void
     {
-        $this->titre = $titre;
+        $this->title = $title;
     }
 
     public function getDescription(): string
@@ -82,77 +82,77 @@ class Ticket
         $this->statut = $statut;
     }
 
-    public function getPriorite(): PrioriteTicket
+    public function getPriority(): PriorityTicket
     {
-        return $this->priorite;
+        return $this->priority;
     }
 
     // Méthodes spécifiques pour les priorités, similaires à celles pour les statuts
-    public function marquerPrioriteBasse(): void
+    public function markPriorityLow(): void
     {
-        $this->priorite = PrioriteTicket::BASSE();
+        $this->priority = PriorityTicket::LOW();
     }
 
-    public function marquerPrioriteMoyenne(): void
+    public function markPriorityAverage(): void
     {
-        $this->priorite = PrioriteTicket::MOYENNE();
+        $this->priority = PriorityTicket::AVERAGE();
     }
 
-    public function marquerPrioriteHaute(): void
+    public function markPriorityHigh(): void
     {
-        $this->priorite = PrioriteTicket::HAUTE();
+        $this->priority = PriorityTicket::HIGH();
     }
 
-    public function marquerPrioriteUrgente(): void
+    public function markPriorityUrgent(): void
     {
-        $this->priorite = PrioriteTicket::URGENTE();
+        $this->priority = PriorityTicket::URGENT();
     }
 
-    public function getUtilisateur(): IdentiteUtilisateur
+    public function getUser(): IdentiteUser
     {
-        return $this->utilisateur;
+        return $this->user;
     }
 
-    public function getTechnicien(): ?IdentiteUtilisateur
+    public function getTechnician(): ?IdentiteUser
     {
-        return $this->technicien;
+        return $this->technician;
     }
 
-    public function assignerTechnicien(IdentiteUtilisateur $technicien): void
+    public function assignTechnician(IdentiteUser $technician): void
     {
-        $this->technicien = $technicien;
-        $this->statut = StatutTicket::ASSIGNE();
+        $this->technician = $technician;
+        $this->statut = StatutTicket::ASSIGNED();
     }
 
-    public function retirerTechnicien(): void
+    public function withdrawTechnician(): void
     {
-        $this->technicien = null;
-        $this->statut = StatutTicket::NOUVEAU();
+        $this->technician = null;
+        $this->statut = StatutTicket::NEW();
     }
 
-    public function getCategorieId(): int
+    public function getCategoryId(): int
     {
-        return $this->categorieId;
+        return $this->categoryId;
     }
 
-    public function setCategorieId(int $categorieId): void
+    public function setCategoryId(int $categoryId): void
     {
-        $this->categorieId = $categorieId;
+        $this->categoryId = $categoryId;
     }
 
-    public function getDateCreation(): DateTime
+    public function getCreationDate(): DateTime
     {
-        return $this->dateCreation;
+        return $this->creationDate;
     }
 
-    public function getDateResolution(): ?DateTime
+    public function getResolutionDate(): ?DateTime
     {
-        return $this->dateResolution;
+        return $this->resolutionDate;
     }
 
-    public function setDateResolution($dateResolution)
+    public function setResolutionDate($resolutionDate)
     {
-        $this->dateResolution = $dateResolution;
+        $this->resolutionDate = $resolutionDate;
     }
 
     public function getSolution(): ?string
@@ -166,83 +166,83 @@ class Ticket
     }
     
 
-    public function resoudre(string $solution): void
+    public function solve(string $solution): void
     {
         $this->solution = $solution;
-        $this->dateResolution = new DateTime();
-        $this->statut = StatutTicket::RESOLU();
+        $this->resolutionDate = new DateTime();
+        $this->statut = StatutTicket::RESOLVED();
     }
 
-    public function fermer(): void
+    public function close(): void
     {
-        $this->statut = StatutTicket::FERME();
+        $this->statut = StatutTicket::CLOSED();
     }
 
-    public function rouvrir(): void
+    public function reopen(): void
     {
-        $this->statut = StatutTicket::ROUVERT();
-        $this->dateResolution = null;
+        $this->statut = StatutTicket::REOPEN();
+        $this->resolutionDate = null;
         $this->solution = null;
     }
 
-    public function marquerEnCours(): void
+    public function markInProgress(): void
     {
-        $this->statut = StatutTicket::EN_COURS();
+        $this->statut = StatutTicket::IN_PROGRESS();
     }
 
-    public function marquerEnAttente(): void
+    public function markOnHold(): void
     {
-        $this->statut = StatutTicket::EN_ATTENTE();
+        $this->statut = StatutTicket::ON_HOLD();
     }
 
-    public function getTempsPasse(): float
+    public function getTimePass(): float
     {
-        return $this->tempsPasse;
+        return $this->timePass;
     }
 
-    public function setTempsPasse($tempsPasse)
+    public function setTimePass($timePass)
     {
-        $this->tempsPasse = $tempsPasse;
+        $this->timePass = $timePass;
     }
 
-    public function ajouterTemps(float $temps): void
+    public function addTime(float $time): void
     {
-        $this->tempsPasse += $temps;
+        $this->timePass += $time;
     }
 
-    // Gestion des commentaires
-    public function getCommentaires(): array
+    // Gestion des comments
+    public function getComments(): array
     {
-        return $this->commentaires;
+        return $this->comments;
     }
 
-    public function ajouterCommentaire(Commentaire $commentaire): void
+    public function addComment(Comment $comments): void
     {
-        $this->commentaires[] = $commentaire;
+        $this->comments[] = $comments;
     }
 
     // Gestion des pièces jointes
-    public function getPiecesJointes(): array
+    public function getAttachments(): array
     {
-        return $this->piecesJointes;
+        return $this->attachments;
     }
 
-    public function ajouterPieceJointe(PieceJointe $pieceJointe): void
+    public function addAttachment(Attachment $attachments): void
     {
-        $this->piecesJointes[] = $pieceJointe;
+        $this->attachments[] = $attachments;
     }
 
     // Gestion de l'évaluation
-    public function getEvaluation(): ?float
+    public function getAssessment(): ?float
     {
-        return $this->evaluation;
+        return $this->assessment;
     }
 
-    public function evaluer(float $evaluation): void
+    public function assess(float $assessment): void
     {
-        if ($evaluation < 0 || $evaluation > 5) {
-            throw new \InvalidArgumentException('L\'évaluation doit être comprise entre 0 et 5.');
+        if ($assessment < 0 || $assessment > 5) {
+            throw new \InvalidArgumentException('The assessment should be between 0 and 5.');
         }
-        $this->evaluation = $evaluation;
+        $this->assessment = $assessment;
     }
 }

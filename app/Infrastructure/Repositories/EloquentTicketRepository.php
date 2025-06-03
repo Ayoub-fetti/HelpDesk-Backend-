@@ -3,13 +3,13 @@
 namespace App\Infrastructure\Repositories;
 
 use App\Domains\Tickets\Entities\Ticket;
-use App\Domains\Tickets\Entities\Commentaire;
+use App\Domains\Tickets\Entities\Comment;
 use App\Domains\Tickets\Repositories\TicketRepositoryInterface;
 use App\Domains\Tickets\ValueObjects\StatutTicket;
-use App\Domains\Tickets\ValueObjects\PrioriteTicket;
-use App\Domains\Shared\ValueObjects\IdentiteUtilisateur;
+use App\Domains\Tickets\ValueObjects\PriorityTicket;
+use App\Domains\Shared\ValueObjects\IdentiteUser;
 use App\Models\Ticket as TicketModel;
-use App\Models\Commentaire as CommentaireModel;
+use App\Models\Comment as CommentModel;
 use App\Models\User;
 use DateTime;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +18,7 @@ class EloquentTicketRepository implements TicketRepositoryInterface
 {
     public function findById(int $id): ?Ticket
     {
-        $ticketModel = TicketModel::with(['utilisateur', 'technicien', 'commentaires', 'piecesJointes'])->find($id);
+        $ticketModel = TicketModel::with(['user', 'technician', 'comments', 'attachments'])->find($id);
         
         if (!$ticketModel) {
             return null;
@@ -29,7 +29,7 @@ class EloquentTicketRepository implements TicketRepositoryInterface
     
     public function findAll(): array
     {
-        $ticketModels = TicketModel::with(['utilisateur', 'technicien'])->get();
+        $ticketModels = TicketModel::with(['user', 'technician'])->get();
         
         return $ticketModels->map(function ($ticketModel) {
             return $this->mapTicketModelToEntity($ticketModel);
@@ -39,7 +39,7 @@ class EloquentTicketRepository implements TicketRepositoryInterface
     public function findByStatut(StatutTicket $statut): array
     {
         $ticketModels = TicketModel::where('statut', $statut->toString())
-            ->with(['utilisateur', 'technicien'])
+            ->with(['user', 'technician'])
             ->get();
             
         return $ticketModels->map(function ($ticketModel) {
@@ -47,10 +47,10 @@ class EloquentTicketRepository implements TicketRepositoryInterface
         })->toArray();
     }
     
-    public function findByUtilisateur(int $utilisateurId): array
+    public function findByUser(int $userId): array
     {
-        $ticketModels = TicketModel::where('utilisateur_id', $utilisateurId)
-            ->with(['utilisateur', 'technicien'])
+        $ticketModels = TicketModel::where('user_id', $userId)
+            ->with(['user', 'technician'])
             ->get();
             
         return $ticketModels->map(function ($ticketModel) {
@@ -58,10 +58,10 @@ class EloquentTicketRepository implements TicketRepositoryInterface
         })->toArray();
     }
     
-    public function findByTechnicien(int $technicienId): array
+    public function findByTechnician(int $technicianId): array
     {
-        $ticketModels = TicketModel::where('technicien_id', $technicienId)
-            ->with(['utilisateur', 'technicien'])
+        $ticketModels = TicketModel::where('technician_id', $technicianId)
+            ->with(['user', 'technician'])
             ->get();
             
         return $ticketModels->map(function ($ticketModel) {
@@ -69,10 +69,10 @@ class EloquentTicketRepository implements TicketRepositoryInterface
         })->toArray();
     }
     
-    public function findByCategorie(int $categorieId): array
+    public function findByCategory(int $categoryId): array
     {
-        $ticketModels = TicketModel::where('categorie_id', $categorieId)
-            ->with(['utilisateur', 'technicien'])
+        $ticketModels = TicketModel::where('category_id', $categoryId)
+            ->with(['user', 'technician'])
             ->get();
             
         return $ticketModels->map(function ($ticketModel) {
@@ -87,8 +87,8 @@ class EloquentTicketRepository implements TicketRepositoryInterface
         $ticketModel = TicketModel::create($ticketData);
         
         // Enregistrer les commentaires si présents
-        foreach ($ticket->getCommentaires() as $commentaire) {
-            $this->addCommentaire($commentaire, $ticketModel->id);
+        foreach ($ticket->getComments() as $comment) {
+            $this->addComment($comment, $ticketModel->id);
         }
         
         return $ticketModel->id;
@@ -101,35 +101,35 @@ class EloquentTicketRepository implements TicketRepositoryInterface
         TicketModel::where('id', $ticket->getId())->update($ticketData);
         
         // Si de nouveaux commentaires ont été ajoutés, les enregistrer
-        $existingCommentaires = CommentaireModel::where('ticket_id', $ticket->getId())->pluck('id')->toArray();
+        $existingComments = CommentModel::where('ticket_id', $ticket->getId())->pluck('id')->toArray();
         
-        foreach ($ticket->getCommentaires() as $commentaire) {
-            if ($commentaire->getId() === 0 || !in_array($commentaire->getId(), $existingCommentaires)) {
-                $this->addCommentaire($commentaire, $ticket->getId());
+        foreach ($ticket->getComments() as $comment) {
+            if ($comment->getId() === 0 || !in_array($comment->getId(), $existingComments)) {
+                $this->addComment($comment, $ticket->getId());
             }
         }
     }
     
-    public function addCommentaire(Commentaire $commentaire, ?int $ticketId = null): int
+    public function addComment(Comment $comment, ?int $ticketId = null): int
     {
-        $commentaireModel = CommentaireModel::create([
-            'ticket_id' => $ticketId ?? $commentaire->getTicketId(),
-            'utilisateur_id' => $commentaire->getAuteurId(),
-            'contenu' => $commentaire->getContenu(),
-            'prive' => $commentaire->estPrive(),
+        $commentModel = CommentModel::create([
+            'ticket_id' => $ticketId ?? $comment->getTicketId(),
+            'utilisateur_id' => $comment->getAuthorId(),
+            'contenu' => $comment->getContent(),
+            'prive' => $comment->isPrivate(),
         ]);
         
-        return $commentaireModel->id;
+        return $commentModel->id;
     }
     
-    public function findCommentairesByTicketId(int $ticketId): array
+    public function findCommentsByTicketId(int $ticketId): array
     {
-        $commentaireModels = CommentaireModel::where('ticket_id', $ticketId)
-            ->with('utilisateur')
+        $commentModels = CommentModel::where('ticket_id', $ticketId)
+            ->with('user')
             ->get();
             
-        return $commentaireModels->map(function($commentaireModel) {
-            return $this->mapCommentaireModelToEntity($commentaireModel);
+        return $commentModels->map(function($commentModel) {
+            return $this->mapCommentModelToEntity($commentModel);
         })->toArray();
     }
     
@@ -141,74 +141,74 @@ class EloquentTicketRepository implements TicketRepositoryInterface
             $query->where('statut', $criteria['statut']);
         }
         
-        if (isset($criteria['priorite'])) {
-            $query->where('priorite', $criteria['priorite']);
+        if (isset($criteria['priority'])) {
+            $query->where('priority', $criteria['priority']);
         }
         
-        if (isset($criteria['categorie_id'])) {
-            $query->where('categorie_id', $criteria['categorie_id']);
+        if (isset($criteria['category_id'])) {
+            $query->where('category_id', $criteria['category_id']);
         }
         
-        if (isset($criteria['utilisateur_id'])) {
-            $query->where('utilisateur_id', $criteria['utilisateur_id']);
+        if (isset($criteria['user_id'])) {
+            $query->where('user_id', $criteria['user_id']);
         }
         
-        if (isset($criteria['technicien_id'])) {
-            $query->where('technicien_id', $criteria['technicien_id']);
+        if (isset($criteria['technician_id'])) {
+            $query->where('technician_id', $criteria['technician_id']);
         }
         
-        if (isset($criteria['texte'])) {
+        if (isset($criteria['text'])) {
             $query->where(function($q) use ($criteria) {
-                $q->where('titre', 'like', '%' . $criteria['texte'] . '%')
-                  ->orWhere('description', 'like', '%' . $criteria['texte'] . '%');
+                $q->where('title', 'like', '%' . $criteria['text'] . '%')
+                  ->orWhere('description', 'like', '%' . $criteria['text'] . '%');
             });
         }
         
-        if (isset($criteria['date_debut']) && isset($criteria['date_fin'])) {
-            $query->whereBetween('created_at', [$criteria['date_debut'], $criteria['date_fin']]);
+        if (isset($criteria['start_date']) && isset($criteria['end_date'])) {
+            $query->whereBetween('created_at', [$criteria['start_date'], $criteria['end_date']]);
         }
         
-        $ticketModels = $query->with(['utilisateur', 'technicien'])->get();
+        $ticketModels = $query->with(['user', 'technician'])->get();
         
         return $ticketModels->map(function ($ticketModel) {
             return $this->mapTicketModelToEntity($ticketModel);
         })->toArray();
     }
     
-    public function getStatistiques(array $filtres = []): array
+    public function getStatistics(array $filtres = []): array
     {
         $query = TicketModel::query();
         
         // Appliquer des filtres si nécessaire
         if (!empty($filtres)) {
-            if (isset($filtres['date_debut']) && isset($filtres['date_fin'])) {
-                $query->whereBetween('created_at', [$filtres['date_debut'], $filtres['date_fin']]);
+            if (isset($filtres['start_date']) && isset($filtres['end_date'])) {
+                $query->whereBetween('created_at', [$filtres['start_date'], $filtres['end_date']]);
             }
             
-            if (isset($filtres['technicien_id'])) {
-                $query->where('technicien_id', $filtres['technicien_id']);
+            if (isset($filtres['technician_id'])) {
+                $query->where('technician_id', $filtres['technician_id']);
             }
         }
         
         $totalTickets = $query->count();
-        $ticketsParStatut = $query->select('statut', DB::raw('count(*) as total'))
+        $ticketsByStatut = $query->select('statut', DB::raw('count(*) as total'))
                                   ->groupBy('statut')
                                   ->pluck('total', 'statut')
                                   ->toArray();
                                   
-        $ticketsParPriorite = $query->select('priorite', DB::raw('count(*) as total'))
-                                   ->groupBy('priorite')
-                                   ->pluck('total', 'priorite')
+        $ticketsByPriorite = $query->select('priority', DB::raw('count(*) as total'))
+                                   ->groupBy('priority')
+                                   ->pluck('total', 'priority')
                                    ->toArray();
                                    
-        $tempsResolutionMoyen = $query->whereNotNull('date_resolution')
-                                      ->avg(DB::raw('TIMESTAMPDIFF(HOUR, created_at, date_resolution)'));
+        $timeResolutionAverage = $query->whereNotNull('resolution_date')
+                                      ->avg(DB::raw('TIMESTAMPDIFF(HOUR, created_at, resolution_date)'));
         
         return [
             'total_tickets' => $totalTickets,
-            'par_statut' => $ticketsParStatut,
-            'par_priorite' => $ticketsParPriorite,
-            'temps_resolution_moyen' => $tempsResolutionMoyen,
+            'by_statut' => $ticketsByStatut,
+            'by_priority' => $ticketsByPriorite,
+            'time_resolution_average' => $timeResolutionAverage,
         ];
     }
     
@@ -222,56 +222,56 @@ class EloquentTicketRepository implements TicketRepositoryInterface
     
     private function mapTicketModelToEntity(TicketModel $ticketModel): Ticket
     {
-        $utilisateur = new IdentiteUtilisateur(
-            $ticketModel->utilisateur->id,
-            $ticketModel->utilisateur->nom,
-            $ticketModel->utilisateur->prenom,
-            $ticketModel->utilisateur->email,
-            $ticketModel->utilisateur->type_utilisateur
+        $user = new IdentiteUser(
+            $ticketModel->user->id,
+            $ticketModel->user->lastName,
+            $ticketModel->user->firstName,
+            $ticketModel->user->email,
+            $ticketModel->user->userType
         );
         
-        $technicien = null;
-        if ($ticketModel->technicien) {
-            $technicien = new IdentiteUtilisateur(
-                $ticketModel->technicien->id,
-                $ticketModel->technicien->nom,
-                $ticketModel->technicien->prenom,
-                $ticketModel->technicien->email,
-                $ticketModel->technicien->type_utilisateur
+        $technician = null;
+        if ($ticketModel->technician) {
+            $technician = new IdentiteUser(
+                $ticketModel->technician->id,
+                $ticketModel->technician->lastName,
+                $ticketModel->technician->firstName,
+                $ticketModel->technician->email,
+                $ticketModel->technician->userType
             );
         }
         
         $ticket = new Ticket(
             $ticketModel->id,
-            $ticketModel->titre,
+            $ticketModel->title,
             $ticketModel->description,
             StatutTicket::fromString($ticketModel->statut),
-            PrioriteTicket::fromString($ticketModel->priorite),
-            $utilisateur,
-            $ticketModel->categorie_id,
+            PriorityTicket::fromString($ticketModel->priority),
+            $user,
+            $ticketModel->category_id,
             new DateTime($ticketModel->created_at)
         );
         
-        if ($technicien) {
-            $ticket->assignerTechnicien($technicien);
+        if ($technician) {
+            $ticket->assignTechnician($technician);
         }
         
-        if ($ticketModel->date_resolution) {
-            $ticket->setDateResolution(new DateTime($ticketModel->date_resolution));
+        if ($ticketModel->resolution_date) {
+            $ticket->setResolutionDate(new DateTime($ticketModel->resolution_date));
         }
         
         if ($ticketModel->solution) {
             $ticket->setSolution($ticketModel->solution);
         }
         
-        if ($ticketModel->temps_passe_total > 0) {
-            $ticket->setTempsPasse($ticketModel->temps_passe_total);
+        if ($ticketModel->time_pass_total > 0) {
+            $ticket->setTimePass($ticketModel->time_pass_total);
         }
         
         // Charger les commentaires si disponibles
-        if ($ticketModel->relationLoaded('commentaires')) {
-            foreach ($ticketModel->commentaires as $commentaireModel) {
-                $ticket->ajouterCommentaire($this->mapCommentaireModelToEntity($commentaireModel));
+        if ($ticketModel->relationLoaded('comments')) {
+            foreach ($ticketModel->comments as $commentModel) {
+                $ticket->addComment($this->mapCommentModelToEntity($commentModel));
             }
         }
         
@@ -281,22 +281,22 @@ class EloquentTicketRepository implements TicketRepositoryInterface
     
     // Convertit un modèle Eloquent de commentaire en entité du domaine
      
-    private function mapCommentaireModelToEntity(CommentaireModel $commentaireModel): Commentaire
+    private function mapCommentModelToEntity(CommentModel $commentModel): Comment
     {
-        $commentaire = new Commentaire(
-            $commentaireModel->id,
-            $commentaireModel->ticket_id,
-            $commentaireModel->utilisateur_id,
-            $commentaireModel->contenu,
-            (bool) $commentaireModel->prive,
-            new DateTime($commentaireModel->created_at)
+        $comment = new Comment(
+            $commentModel->id,
+            $commentModel->ticket_id,
+            $commentModel->user_id,
+            $commentModel->comtent,
+            (bool) $commentModel->private,
+            new DateTime($commentModel->created_at)
         );
         
-        if ($commentaireModel->updated_at && $commentaireModel->updated_at !== $commentaireModel->created_at) {
-            $commentaire->setDateModification(new DateTime($commentaireModel->updated_at));
+        if ($commentModel->updated_at && $commentModel->updated_at !== $commentModel->created_at) {
+            $comment->setModificationDate(new DateTime($commentModel->updated_at));
         }
         
-        return $commentaire;
+        return $comment;
     }
     
     
@@ -305,22 +305,22 @@ class EloquentTicketRepository implements TicketRepositoryInterface
     private function prepareTicketData(Ticket $ticket): array
     {
         $data = [
-            'titre' => $ticket->getTitre(),
+            'title' => $ticket->getTitle(),
             'description' => $ticket->getDescription(),
             'statut' => $ticket->getStatut()->toString(),
-            'priorite' => $ticket->getPriorite()->toString(),
-            'utilisateur_id' => $ticket->getUtilisateur()->getId(),
-            'categorie_id' => $ticket->getCategorieId(),
+            'priority' => $ticket->getPriority()->toString(),
+            'user_id' => $ticket->getUser()->getId(),
+            'category_id' => $ticket->getCategoryId(),
             'solution' => $ticket->getSolution(),
-            'temps_passe_total' => $ticket->getTempsPasse(),
+            'time_pass_total' => $ticket->getTimePass(),
         ];
         
-        if ($ticket->getTechnicien()) {
-            $data['technicien_id'] = $ticket->getTechnicien()->getId();
+        if ($ticket->getTechnician()) {
+            $data['technician_id'] = $ticket->getTechnician()->getId();
         }
         
-        if ($ticket->getDateResolution()) {
-            $data['date_resolution'] = $ticket->getDateResolution()->format('Y-m-d H:i:s');
+        if ($ticket->getResolutionDate()) {
+            $data['resolution_date'] = $ticket->getResolutionDate()->format('Y-m-d H:i:s');
         }
         
         return $data;

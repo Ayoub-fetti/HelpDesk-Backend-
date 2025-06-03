@@ -4,38 +4,38 @@ namespace App\Domains\Tickets\ValueObjects;
 
 enum StatutTicket
 {
-    case NOUVEAU;
-    case ASSIGNE;
-    case EN_COURS;
-    case EN_ATTENTE;
-    case RESOLU;
-    case FERME;
-    case ROUVERT;
+    case NEW;
+    case ASSIGNED;
+    case IN_PROGRESS;
+    case ON_HOLD;
+    case RESOLVED;
+    case CLOSED;
+    case REOPEN;
 
     public static function fromString(string $statut): self
     {
         return match (strtolower($statut)) {
-            'nouveau' => self::NOUVEAU,
-            'assigné', 'assigne' => self::ASSIGNE,
-            'en_cours' => self::EN_COURS,
-            'en_attente' => self::EN_ATTENTE,
-            'résolu', 'resolu' => self::RESOLU,
-            'fermé', 'ferme' => self::FERME,
-            'rouvert' => self::ROUVERT,
-            default => throw new \InvalidArgumentException('Statut de ticket invalide')
+            'new' => self::NEW,
+            'assigned', '' => self::ASSIGNED,
+            'in_progress' => self::IN_PROGRESS,
+            'on_hold' => self::ON_HOLD,
+            'resolved' => self::RESOLVED,
+            'closed'=> self::CLOSED,
+            'reopen' => self::REOPEN,
+            default => throw new \InvalidArgumentException('Invalid ticket status')
         };
     }
 
     public function toString(): string
     {
         return match($this) {
-            self::NOUVEAU => 'nouveau',
-            self::ASSIGNE => 'assigné',
-            self::EN_COURS => 'en_cours',
-            self::EN_ATTENTE => 'en_attente',
-            self::RESOLU => 'résolu',
-            self::FERME => 'fermé',
-            self::ROUVERT => 'rouvert',
+            self::NEW => 'new',
+            self::ASSIGNED => 'assigned',
+            self::IN_PROGRESS => 'in_progress',
+            self::ON_HOLD => 'on_hold',
+            self::RESOLVED => 'resolved',
+            self::CLOSED => 'closed',
+            self::REOPEN => 'reopen',
         };
     }
 }

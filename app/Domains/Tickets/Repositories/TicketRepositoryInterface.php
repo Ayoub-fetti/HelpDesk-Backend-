@@ -3,7 +3,7 @@
 namespace App\Domains\Tickets\Repositories;
 
 use App\Domains\Tickets\Entities\Ticket;
-use App\Domains\Tickets\Entities\Commentaire;
+use App\Domains\Tickets\Entities\Comment;
 use App\Domains\Tickets\ValueObjects\StatutTicket;
 use App\Domains\Shared\ValueObjects\IdentiteUtilisateur;
 
@@ -27,17 +27,17 @@ interface TicketRepositoryInterface
     
     // Récupérer les tickets d'un utilisateur
 
-    public function findByUtilisateur(int $utilisateurId): array;
+    public function findByUser(int $userId): array;
     
     
     // Récupérer les tickets assignés à un technicien
 
-    public function findByTechnicien(int $technicienId): array;
+    public function findByTechnician(int $technicianId): array;
     
     
     // Récupérer les tickets par catégorie
 
-    public function findByCategorie(int $categorieId): array;
+    public function findByCategory(int $categoryId): array;
     
     
     // Enregistrer un nouveau ticket
@@ -50,14 +50,14 @@ interface TicketRepositoryInterface
     public function update(Ticket $ticket): void;
     
     
-    // Ajouter un commentaire à un ticket
+    // Ajouter un comment à un ticket
 
-    public function addCommentaire(Commentaire $commentaire): int;
+    public function addComment(Comment $comment): int;
     
     
-    // Récupérer les commentaires d'un ticket
+    // Récupérer les comments d'un ticket
 
-    public function findCommentairesByTicketId(int $ticketId): array;
+    public function findCommentsByTicketId(int $ticketId): array;
     
     
     // Rechercher des tickets selon des critères
@@ -67,7 +67,7 @@ interface TicketRepositoryInterface
     
     // Récupérer des statistiques sur les tickets
 
-    public function getStatistiques(array $filtres = []): array;
+    public function getStatistics(array $filtres = []): array;
     
     
     // Supprimer un ticket

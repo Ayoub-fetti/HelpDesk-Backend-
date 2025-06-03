@@ -33,8 +33,8 @@ class RegleMetierException extends Exception
     public static function resolutionSansSolution(): self
     {
         return new self(
-            'La solution ne peut pas être vide pour résoudre un ticket',
-            'resolution_requiert_solution',
+            'Solution cannot be empty to resolve a ticket',
+            'resolution_requires_solution',
             []
         );
     }
@@ -45,8 +45,8 @@ class RegleMetierException extends Exception
     public static function commentaireVide(): self
     {
         return new self(
-            'Le contenu du commentaire ne peut pas être vide',
-            'commentaire_non_vide',
+            'Comment content cannot be empty',
+            'comment_not_empty',
             []
         );
     }
@@ -57,8 +57,8 @@ class RegleMetierException extends Exception
     public static function autorisationInsuffisante(string $action, string $role): self
     {
         return new self(
-            "Autorisation insuffisante pour {$action}",
-            'autorisation_requise',
+            "Insufficient authorization for {$action}",
+            'authorization_required',
             ['action' => $action, 'role_requis' => $role]
         );
     }

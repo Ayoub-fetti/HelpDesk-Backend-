@@ -17,7 +17,7 @@ class StatutInvalideException extends Exception
         
         // Si les statuts sont fournis mais pas le message, créer un message par défaut
         if (empty($message) && $statutActuel && $statutDemande) {
-            $message = "La transition de statut de '{$statutActuel->toString()}' vers '{$statutDemande->toString()}' n'est pas autorisée";
+            $message = "The transition of status from '{$statutActuel->toString()}' to '{$statutDemande->toString()}' is not allowed";
         }
         
         parent::__construct($message, $code, $previous);

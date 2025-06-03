@@ -3,11 +3,11 @@
 namespace App\Domains\Tickets\Services;
 
 use App\Domains\Tickets\Entities\Ticket;
-use App\Domains\Tickets\Entities\Commentaire;
+use App\Domains\Tickets\Entities\Comment;
 use App\Domains\Tickets\ValueObjects\StatutTicket;
 use App\Domains\Tickets\Exceptions\StatutInvalideException;
 use App\Domains\Tickets\Exceptions\RegleMetierException;
-use App\Domains\Shared\ValueObjects\IdentiteUtilisateur;
+use App\Domains\Shared\ValueObjects\IdentiteUser;
 
 class TicketService
 {
@@ -15,197 +15,197 @@ class TicketService
     // Résout un ticket en vérifiant que les règles métier sont respectées
  
 
-    public function resoudreTicket(Ticket $ticket, string $solution, IdentiteUtilisateur $utilisateur): void
+    public function resolveTicket(Ticket $ticket, string $solution, IdentiteUser $user): void
     {
-        // Vérifier que l'utilisateur est autorisé à résoudre le ticket (technicien assigné ou admin)
-        if (!$utilisateur->estTechnicien() && !$utilisateur->estAdministrateur() && 
-            !($ticket->getTechnicien() && $ticket->getTechnicien()->getId() === $utilisateur->getId())) {
-            throw new RegleMetierException('Seul le technicien assigné au ticket ou un administrateur peut le résoudre');
+        // Vérifier que l'user est autorisé à résoudre le ticket (technicien assigné ou admin)
+        if (!$user->isTechnician() && !$user->isAdministrator() && 
+            !($ticket->getTechnician() && $ticket->getTechnician()->getId() === $user->getId())) {
+            throw new RegleMetierException('Only the technician assigned to the ticket or an administrator can resolve it');
         }
         
         // Vérifier que le ticket n'est pas déjà fermé ou résolu
-        if ($ticket->getStatut() === StatutTicket::FERME || $ticket->getStatut() === StatutTicket::RESOLU) {
-            throw new StatutInvalideException('Impossible de résoudre un ticket déjà résolu ou fermé');
+        if ($ticket->getStatut() === StatutTicket::CLOSED || $ticket->getStatut() === StatutTicket::RESOLVED) {
+            throw new StatutInvalideException('Unable to resolve a ticket that has already been resolved or closed');
         }
         
         // Vérifier que la solution n'est pas vide
         if (empty(trim($solution))) {
-            throw new RegleMetierException('La solution ne peut pas être vide pour résoudre un ticket');
+            throw new RegleMetierException('Solution cannot be empty to resolve a ticket');
         }
         
         // Résoudre le ticket
-        $ticket->resoudre($solution);
+        $ticket->solve($solution);
     }
     
     
     //  Change le statut d'un ticket en vérifiant les règles de transition
     
-    public function changerStatut(Ticket $ticket, StatutTicket $nouveauStatut, IdentiteUtilisateur $utilisateur): void
+    public function changeStatut(Ticket $ticket, StatutTicket $newStatut, IdentiteUser $user): void
     {
-        $statutActuel = $ticket->getStatut();
+        $statusCurrent = $ticket->getStatut();
         
         // Vérifier la validité de la transition
-        if (!$this->estTransitionValide($statutActuel, $nouveauStatut)) {
+        if (!$this->isTransitionValid($statusCurrent, $newStatut)) {
             throw new StatutInvalideException(
                 "",
-                $statutActuel,
-                $nouveauStatut
+                $statusCurrent,
+                $newStatut
             );
         }
         
-        // Vérifier les permissions selon le type d'utilisateur
-        $this->verifierPermissionChangementStatut($ticket, $nouveauStatut, $utilisateur);
+        // Vérifier les permissions selon le type d'user
+        $this->checkPermissionChangeStatus($ticket, $newStatut, $user);
         
         // Appliquer le changement de statut selon le type de statut
-        switch ($nouveauStatut) {
-            case StatutTicket::RESOLU:
-                throw new RegleMetierException('Utilisez la méthode resoudreTicket() pour résoudre un ticket');
-            case StatutTicket::EN_COURS:
-                $ticket->marquerEnCours();
+        switch ($newStatut) {
+            case StatutTicket::RESOLVED:
+                throw new RegleMetierException('Use the resolveTicket() method to resolve a ticket');
+            case StatutTicket::IN_PROGRESS:
+                $ticket->markInProgress();
                 break;
-            case StatutTicket::EN_ATTENTE:
-                $ticket->marquerEnAttente();
+            case StatutTicket::ON_HOLD:
+                $ticket->markOnHold();
                 break;
-            case StatutTicket::FERME:
-                if ($statutActuel !== StatutTicket::RESOLU) {
-                    throw new StatutInvalideException('Un ticket doit etre resolu avant d\'etre ferme');
+            case StatutTicket::CLOSED:
+                if ($statusCurrent !== StatutTicket::RESOLVED) {
+                    throw new StatutInvalideException('A ticket must be resolved before it can be closed.');
                 }
-                $ticket->fermer();
+                $ticket->close();
                 break;
-            case StatutTicket::ROUVERT:
-                $ticket->rouvrir();
+            case StatutTicket::REOPEN:
+                $ticket->reopen();
                 break;
             default:
-                $ticket->setStatut($nouveauStatut);
+                $ticket->setStatut($newStatut);
         }
     }
     
     
     // Ajoute un commentaire au ticket avec validation
 
-    public function ajouterCommentaire(Ticket $ticket, string $contenu, IdentiteUtilisateur $utilisateur, bool $estPrive = false): void
+    public function addComment(Ticket $ticket, string $content, IdentiteUser $user, bool $isPrivate = false): void
     {
         // Vérifier que le contenu du commentaire n'est pas vide
-        if (empty(trim($contenu))) {
+        if (empty(trim($content))) {
             throw RegleMetierException::commentaireVide();
         }
         
         // Vérifier les permissions pour les commentaires privés
-        if ($estPrive && !($utilisateur->estTechnicien() || $utilisateur->estAdministrateur() || $utilisateur->estSuperviseur())) {
-            throw new RegleMetierException('Seul le personnel technique peut ajouter des commentaires privés');
+        if ($isPrivate && !($user->isTechnician() || $user->isAdministrator() || $user->isSupervisor())) {
+            throw new RegleMetierException('Only technical staff can add private comments');
         }
         
         // Créer et ajouter le commentaire
-        $commentaire = new Commentaire(
+        $comment = new Comment(
             0, // ID temporaire, sera défini lors de la persistance
             $ticket->getId(),
-            $utilisateur->getId(),
-            $contenu,
-            $estPrive,
+            $user->getId(),
+            $content,
+            $isPrivate,
             new \DateTime()
         );
         
-        $ticket->ajouterCommentaire($commentaire);
+        $ticket->addComment($comment);
     }
     
     
     // Assigne un ticket à un technicien
 
-    public function assignerTechnicien(Ticket $ticket, IdentiteUtilisateur $technicien, IdentiteUtilisateur $utilisateurEffectuantAction): void
+    public function assignTechnician(Ticket $ticket, IdentiteUser $technician, IdentiteUser $userEffectuantAction): void
     {
-        // Vérifier que l'utilisateur est autorisé à assigner des tickets
-        if (!$utilisateurEffectuantAction->estAdministrateur() && !$utilisateurEffectuantAction->estSuperviseur()) {
+        // Vérifier que l'user est autorisé à assigner des tickets
+        if (!$userEffectuantAction->isAdministrator() && !$userEffectuantAction->isSupervisor()) {
         throw RegleMetierException::autorisationInsuffisante('assigner un ticket', 'administrateur ou superviseur');
 
         }
         
         // Vérifier que la personne assignée est bien un technicien
-        if (!$technicien->estTechnicien()) {
-            throw new RegleMetierException('Seuls les techniciens peuvent être assignés à des tickets');
+        if (!$technician->isTechnician()) {
+            throw new RegleMetierException('Only technicians can be assigned to tickets');
         }
         
-        $ticket->assignerTechnicien($technicien);
+        $ticket->assignTechnician($technician);
     }
     
     
     //  Vérifie si une transition de statut est valide
 
-    private function estTransitionValide(StatutTicket $statutActuel, StatutTicket $nouveauStatut): bool
+    private function isTransitionValid(StatutTicket $statusCurrent, StatutTicket $newStatut): bool
     {
         // Définir les transitions de statut autorisées
         $transitionsAutorisees = [
-            StatutTicket::NOUVEAU->toString() => [
-                StatutTicket::ASSIGNE->toString(),
-                StatutTicket::EN_COURS->toString(),
+            StatutTicket::NEW->toString() => [
+                StatutTicket::ASSIGNED->toString(),
+                StatutTicket::IN_PROGRESS->toString(),
             ],
-            StatutTicket::ASSIGNE->toString() => [
-                StatutTicket::EN_COURS->toString(),
-                StatutTicket::EN_ATTENTE->toString(),
-                StatutTicket::NOUVEAU->toString(), // Retirer l'assignation
+            StatutTicket::ASSIGNED->toString() => [
+                StatutTicket::IN_PROGRESS->toString(),
+                StatutTicket::ON_HOLD->toString(),
+                StatutTicket::NEW->toString(), // Retirer l'assignation
             ],
-            StatutTicket::EN_COURS->toString() => [
-                StatutTicket::EN_ATTENTE->toString(),
-                StatutTicket::RESOLU->toString(),
+            StatutTicket::IN_PROGRESS->toString() => [
+                StatutTicket::ON_HOLD->toString(),
+                StatutTicket::RESOLVED->toString(),
             ],
-            StatutTicket::EN_ATTENTE->toString() => [
-                StatutTicket::EN_COURS->toString(),
-                StatutTicket::RESOLU->toString(),
+            StatutTicket::ON_HOLD->toString() => [
+                StatutTicket::IN_PROGRESS->toString(),
+                StatutTicket::RESOLVED->toString(),
             ],
-            StatutTicket::RESOLU->toString() => [
-                StatutTicket::FERME->toString(),
-                StatutTicket::ROUVERT->toString(),
+            StatutTicket::RESOLVED->toString() => [
+                StatutTicket::CLOSED->toString(),
+                StatutTicket::REOPEN->toString(),
             ],
-            StatutTicket::FERME->toString() => [
-                StatutTicket::ROUVERT->toString(),
+            StatutTicket::CLOSED->toString() => [
+                StatutTicket::REOPEN->toString(),
             ],
-            StatutTicket::ROUVERT->toString() => [
-                StatutTicket::EN_COURS->toString(),
-                StatutTicket::EN_ATTENTE->toString(),
-                StatutTicket::ASSIGNE->toString(),
+            StatutTicket::REOPEN->toString() => [
+                StatutTicket::IN_PROGRESS->toString(),
+                StatutTicket::ON_HOLD->toString(),
+                StatutTicket::ASSIGNED->toString(),
             ],
         ];
         
         // Vérifier si la transition est permise
         return in_array(
-            $nouveauStatut->toString(),
-            $transitionsAutorisees[$statutActuel->toString()] ?? []
+            $newStatut->toString(),
+            $transitionsAutorisees[$statusCurrent->toString()] ?? []
         );
     }
     
     
-    // Vérifie les permissions de l'utilisateur pour changer le statut d'un ticket
+    // Vérifie les permissions de l'user pour changer le statut d'un ticket
 
-    private function verifierPermissionChangementStatut(Ticket $ticket, StatutTicket $nouveauStatut, IdentiteUtilisateur $utilisateur): void
+    private function checkPermissionChangeStatus(Ticket $ticket, StatutTicket $newStatut, IdentiteUser $user): void
     {
         // Les administrateurs peuvent tout faire
-        if ($utilisateur->estAdministrateur()) {
+        if ($user->isAdministrator()) {
             return;
         }
         
-        // Vérifier si l'utilisateur est le technicien assigné au ticket
-        $estTechnicienAssigne = $ticket->getTechnicien() && 
-                                $ticket->getTechnicien()->getId() === $utilisateur->getId();
+        // Vérifier si l'user est le technicien assigné au ticket
+        $estTechnicienAssigne = $ticket->getTechniciAn() && 
+                                $ticket->getTechniciAn()->getId() === $user->getId();
         
-        // Vérifier si l'utilisateur est l'utilisateur qui a créé le ticket
-        $estCreateur = $ticket->getUtilisateur()->getId() === $utilisateur->getId();
+        // Vérifier si l'user est l'user qui a créé le ticket
+        $estCreateur = $ticket->getUser()->getId() === $user->getId();
         
         // Règles spécifiques selon le statut
-        switch ($nouveauStatut) {
-            case StatutTicket::FERME:
-            case StatutTicket::RESOLU:
-                if (!$estTechnicienAssigne && !$utilisateur->estSuperviseur()) {
-                    throw new RegleMetierException('Seul le technicien assigné ou un superviseur peut résoudre/fermer ce ticket');
+        switch ($newStatut) {
+            case StatutTicket::CLOSED:
+            case StatutTicket::RESOLVED:
+                if (!$estTechnicienAssigne && !$user->isSupervisor()) {
+                    throw new RegleMetierException('Only the assigned technician or supervisor can resolve/CLOSED this ticket');
                 }
                 break;
-            case StatutTicket::ROUVERT:
-                if (!$estCreateur && !$utilisateur->estSuperviseur()) {
-                    throw new RegleMetierException('Seul le créateur du ticket ou un superviseur peut rouvrir ce ticket');
+            case StatutTicket::REOPEN:
+                if (!$estCreateur && !$user->isSupervisor()) {
+                    throw new RegleMetierException('Only the ticket creator or a supervisor can reopen this ticket');
                 }
                 break;
-            case StatutTicket::EN_COURS:
-            case StatutTicket::EN_ATTENTE:
-                if (!$estTechnicienAssigne && !$utilisateur->estSuperviseur()) {
-                    throw new RegleMetierException('Seul le technicien assigné ou un superviseur peut changer ce statut');
+            case StatutTicket::IN_PROGRESS:
+            case StatutTicket::ON_HOLD:
+                if (!$estTechnicienAssigne && !$user->isSupervisor()) {
+                    throw new RegleMetierException('Only the assigned technician or a supervisor can change this status');
                 }
                 break;
         }

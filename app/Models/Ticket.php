@@ -45,7 +45,7 @@ class Ticket extends Model
         return $this->belongsTo(Category::class, 'category_id');
     }
     
-    public function Comments(): HasMany
+    public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
     }
