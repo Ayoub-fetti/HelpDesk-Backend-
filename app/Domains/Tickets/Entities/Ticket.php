@@ -150,10 +150,21 @@ class Ticket
         return $this->dateResolution;
     }
 
+    public function setDateResolution($dateResolution)
+    {
+        $this->dateResolution = $dateResolution;
+    }
+
     public function getSolution(): ?string
     {
         return $this->solution;
     }
+
+    public function setSolution($solution)
+    {
+        $this->solution = $solution;
+    }
+    
 
     public function resoudre(string $solution): void
     {
@@ -187,6 +198,11 @@ class Ticket
     public function getTempsPasse(): float
     {
         return $this->tempsPasse;
+    }
+
+    public function setTempsPasse($tempsPasse)
+    {
+        $this->tempsPasse = $tempsPasse;
     }
 
     public function ajouterTemps(float $temps): void

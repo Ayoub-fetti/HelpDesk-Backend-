@@ -64,6 +64,10 @@ class Commentaire
     {
         return $this->dateModification;
     }
+    public function setDateModification($dateModification)
+    {
+        $this->dateModification = $dateModification;
+    }
 
     public function modifier(string $nouveauContenu): void
     {
