@@ -90,22 +90,22 @@ class Ticket
     // Méthodes spécifiques pour les priorités, similaires à celles pour les statuts
     public function markPriorityLow(): void
     {
-        $this->priority = PriorityTicket::LOW();
+        $this->priority = PriorityTicket::LOW;
     }
 
     public function markPriorityAverage(): void
     {
-        $this->priority = PriorityTicket::AVERAGE();
+        $this->priority = PriorityTicket::AVERAGE;
     }
 
     public function markPriorityHigh(): void
     {
-        $this->priority = PriorityTicket::HIGH();
+        $this->priority = PriorityTicket::HIGH;
     }
 
     public function markPriorityUrgent(): void
     {
-        $this->priority = PriorityTicket::URGENT();
+        $this->priority = PriorityTicket::URGENT;
     }
 
     public function getUser(): IdentiteUser
@@ -121,13 +121,13 @@ class Ticket
     public function assignTechnician(IdentiteUser $technician): void
     {
         $this->technician = $technician;
-        $this->statut = StatutTicket::ASSIGNED();
+        $this->statut = StatutTicket::ASSIGNED;
     }
 
     public function withdrawTechnician(): void
     {
         $this->technician = null;
-        $this->statut = StatutTicket::NEW();
+        $this->statut = StatutTicket::NEW;
     }
 
     public function getCategoryId(): int
@@ -170,29 +170,29 @@ class Ticket
     {
         $this->solution = $solution;
         $this->resolutionDate = new DateTime();
-        $this->statut = StatutTicket::RESOLVED();
+        $this->statut = StatutTicket::RESOLVED;
     }
 
     public function close(): void
     {
-        $this->statut = StatutTicket::CLOSED();
+        $this->statut = StatutTicket::CLOSED;
     }
 
     public function reopen(): void
     {
-        $this->statut = StatutTicket::REOPEN();
+        $this->statut = StatutTicket::REOPEN;
         $this->resolutionDate = null;
         $this->solution = null;
     }
 
     public function markInProgress(): void
     {
-        $this->statut = StatutTicket::IN_PROGRESS();
+        $this->statut = StatutTicket::IN_PROGRESS;
     }
 
     public function markOnHold(): void
     {
-        $this->statut = StatutTicket::ON_HOLD();
+        $this->statut = StatutTicket::ON_HOLD;
     }
 
     public function getTimePass(): float

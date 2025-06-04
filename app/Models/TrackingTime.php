@@ -10,7 +10,7 @@ class TrackingTime extends Model
 {
     use HasFactory;
     
-    protected $table = 'suivi_temps';
+    protected $table = 'tracking_times';
     
     protected $fillable = [
         'ticket_id',
