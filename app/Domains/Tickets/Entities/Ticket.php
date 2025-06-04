@@ -86,6 +86,10 @@ class Ticket
     {
         return $this->priority;
     }
+    public function setPriority($priority) 
+    {
+        $this->priority = $priority;
+    }
 
     // Méthodes spécifiques pour les priorités, similaires à celles pour les statuts
     public function markPriorityLow(): void

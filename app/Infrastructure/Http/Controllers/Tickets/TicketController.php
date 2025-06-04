@@ -19,6 +19,7 @@ use App\Infrastructure\Http\Requests\Tickets\ChangeStatusRequest;
 use App\Infrastructure\Http\Requests\Tickets\CloseTicketRequest;
 use App\Infrastructure\Http\Resources\TicketResource;
 use App\Domains\Tickets\Repositories\TicketRepositoryInterface;
+use App\Infrastructure\Http\Requests\Tickets\UpdateTicketRequest;
 use Illuminate\Support\Facades\Auth;
 
 class TicketController extends Controller
@@ -179,5 +180,39 @@ class TicketController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 400);
         }
+    } 
+
+    public function update(int $id, UpdateTicketRequest $request): JsonResponse
+    {
+        $ticket = $this->ticketRepository->findById($id);
+        
+        if (!$ticket) {
+            return response()->json(['message' => 'Ticket not found'], 404);
+        }
+        
+        // Use validated() to get only validated fields
+        $validatedData = $request->validated();
+        
+        // Update only allowed fields
+        if (isset($validatedData['title'])) {
+            $ticket->setTitle($validatedData['title']);
+        }
+        
+        if (isset($validatedData['description'])) {
+            $ticket->setDescription($validatedData['description']);
+        }
+        
+        if (isset($validatedData['priority'])) {
+            $ticket->setPriority(\App\Domains\Tickets\ValueObjects\PriorityTicket::fromString($validatedData['priority']));
+        }
+        
+        if (isset($validatedData['category_id'])) {
+            $ticket->setCategoryId($validatedData['category_id']);
+        }
+        
+        // Save the updated ticket
+        $this->ticketRepository->update($ticket);
+        
+        return response()->json(new TicketResource($ticket));
     }
 }
