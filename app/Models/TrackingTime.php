@@ -14,17 +14,17 @@ class TrackingTime extends Model
     
     protected $fillable = [
         'ticket_id',
-        'technicien_id',
-        'date_debut',
-        'date_fin',
-        'duree',
+        'technician_id',
+        'start_date',
+        'end_date',
+        'duration',
         'description',
     ];
     
     protected $casts = [
-        'date_debut' => 'datetime',
-        'date_fin' => 'datetime',
-        'duree' => 'float',
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+        'duration' => 'float',
     ];
     
     public function ticket(): BelongsTo
@@ -32,8 +32,8 @@ class TrackingTime extends Model
         return $this->belongsTo(Ticket::class);
     }
     
-    public function technicien(): BelongsTo
+    public function technician(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'technicien_id');
+        return $this->belongsTo(User::class, 'technician_id');
     }
 }
