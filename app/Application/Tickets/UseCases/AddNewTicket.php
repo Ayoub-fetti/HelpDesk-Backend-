@@ -32,22 +32,23 @@ class AddNewTicket
             $dto->userId,
             $dto->userLastName,
             $dto->userFirstName,
-            $dto->userEmail,  
-            $dto->userPhone,  
+            $dto->userEmail,   
             $dto->userType
             ),
             $dto->categoryId,
             new DateTime()
         );
 
-        $ticket->assignTechnician(new IdentiteUser(
-            $dto->technicianId,
-            $dto->technicianLastName ?? '',
-            $dto->technicianFirstName ?? '',
-            'technician',
-            $dto->technicianEmail ?? '',
-            $dto->technicianPhone ?? ''
-        ));
+        // Only assign a technician if a technician ID is provided
+        if ($dto->technicianId !== null) {
+            $ticket->assignTechnician(new IdentiteUser(
+                $dto->technicianId,
+                $dto->technicianLastName ?? '',
+                $dto->technicianFirstName ?? '',
+                $dto->technicianEmail ?? '',
+                'technician'
+            ));
+        }
 
         // Persister le ticket via le repository
         $ticketId = $this->ticketRepository->save($ticket);

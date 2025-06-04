@@ -227,7 +227,7 @@ class EloquentTicketRepository implements TicketRepositoryInterface
             $ticketModel->user->lastName,
             $ticketModel->user->firstName,
             $ticketModel->user->email,
-            $ticketModel->user->userType
+            $ticketModel->user->userType ?? 'final_user'
         );
         
         $technician = null;
@@ -237,7 +237,7 @@ class EloquentTicketRepository implements TicketRepositoryInterface
                 $ticketModel->technician->lastName,
                 $ticketModel->technician->firstName,
                 $ticketModel->technician->email,
-                $ticketModel->technician->userType
+                $ticketModel->technician->userType ?? 'technician'
             );
         }
         

@@ -24,14 +24,14 @@ class TicketResource extends JsonResource
                 'lastName' => $this->getUser()->getLastName(),
                 'firstName' => $this->getUser()->getFirstName(),
                 'email' => $this->getUser()->getEmail(),
-                'type' => $this->getUser()->getType(),
+                'type' => $this->getUser()->getUserType(),
             ],
             'technician' => $this->getTechnician() ? [
                 'id' => $this->getTechnician()->getId(),
                 'lastName' => $this->getTechnician()->getLastName(),
                 'firstName' => $this->getTechnician()->getFirstName(),
                 'email' => $this->getTechnician()->getEmail(),
-                'type' => $this->getTechnician()->getType(),
+                'type' => $this->getTechnician()->getUserType(),
             ] : null,
             'created_at' => $this->getCreationDate()->format('Y-m-d H:i:s'),
             'resolution_date' => $this->getResolutionDate() ? 

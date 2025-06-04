@@ -5,7 +5,7 @@ use App\Infrastructure\Http\Controllers\Tickets\TicketController;
 use App\Infrastructure\Http\Controllers\Tickets\CommentController;
 use App\Infrastructure\Http\Controllers\Tickets\TrackingTimeController;
 
-Route::middleware('auth:sanctum')->prefix('api/tickets')->group(function () {
+Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
     // Ticket routes
     Route::get('/', [TicketController::class, 'index']);
     Route::post('/', [TicketController::class, 'store']);
