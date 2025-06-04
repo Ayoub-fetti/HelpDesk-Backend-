@@ -215,4 +215,16 @@ class TicketController extends Controller
         
         return response()->json(new TicketResource($ticket));
     }
+    public function destroy(int $id): JsonResponse
+    {
+        $ticket = $this->ticketRepository->findById($id);
+
+        if (!$ticket) {
+            return response()->json(['message' => 'Ticket not found'], 404);
+        }
+
+        $this->ticketRepository->delete($ticket->getId());
+
+        return response()->json(['message' => 'Ticket deleted successfully']);
+    }
 }
