@@ -13,6 +13,10 @@ use App\Application\Tickets\DTOs\NewTicketDTO;
 use App\Application\Tickets\DTOs\ReassignationTicketDTO;
 use App\Application\Tickets\DTOs\ChangeStatutDTO;
 use App\Application\Tickets\DTOs\CloseTicketDTO;
+use App\Infrastructure\Http\Requests\Tickets\ResolveTicketRequest;
+use App\Application\Tickets\UseCases\ResolveTicket;
+use App\Application\Tickets\DTOs\ResolveTicketDTO;
+
 use App\Infrastructure\Http\Requests\Tickets\CreateTicketRequest;
 use App\Infrastructure\Http\Requests\Tickets\AssignTicketRequest;
 use App\Infrastructure\Http\Requests\Tickets\ChangeStatusRequest;
@@ -175,7 +179,7 @@ class TicketController extends Controller
         
         $dto = new ChangeStatutDTO(
             $id,
-            $request['newStatut'],
+            $request['statut'],
             $user->id,
             $user->lastName,
             $user->firstName,
@@ -187,6 +191,28 @@ class TicketController extends Controller
         try {
             $useCase->execute($dto);
             return response()->json(['message' => 'Ticket status changed successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 400);
+        }
+    }
+    public function resolveTicket(int $id, ResolveTicketRequest $request, ResolveTicket $useCase): JsonResponse
+    {
+        $user = Auth::user();
+        
+        $dto = new ResolveTicketDTO(
+            $id,
+            $request['solution'],
+            $user->id,
+            $user->lastName,
+            $user->firstName,
+            $user->user_type,
+            $user->email,
+            $request->comment ?? ''
+        );
+        
+        try {
+            $useCase->execute($dto);
+            return response()->json(['message' => 'Ticket resolved successfully']);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 400);
         }

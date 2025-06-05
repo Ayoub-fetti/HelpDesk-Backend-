@@ -16,6 +16,7 @@ Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
     // Specific ticket actions
     Route::post('/{id}/assign', [TicketController::class, 'assign']);
     Route::post('/{id}/status', [TicketController::class, 'changeStatus']);
+    Route::post('/{id}/resolve', [TicketController::class, 'resolveTicket']);
     Route::post('/{id}/close', [TicketController::class, 'close']);
     
     // Comments

@@ -142,6 +142,8 @@ class TicketService
                 StatutTicket::IN_PROGRESS->toString(),
                 StatutTicket::ON_HOLD->toString(),
                 StatutTicket::NEW->toString(), // Retirer l'assignation
+                StatutTicket::RESOLVED->toString(), // Added this line
+
             ],
             StatutTicket::IN_PROGRESS->toString() => [
                 StatutTicket::ON_HOLD->toString(),

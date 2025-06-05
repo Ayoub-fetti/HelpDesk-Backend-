@@ -22,7 +22,7 @@ class ChangeStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => [
+            'statut' => [
                 'required', 
                 'string',
                 function ($attribute, $value, $fail) {
