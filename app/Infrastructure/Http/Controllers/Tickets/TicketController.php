@@ -67,6 +67,39 @@ class TicketController extends Controller
         return response()->json(TicketResource::collection($tickets));
     }
 
+    public function update(int $id, UpdateTicketRequest $request): JsonResponse
+    {
+        $ticket = $this->ticketRepository->findById($id);
+        
+        if (!$ticket) {
+            return response()->json(['message' => 'Ticket not found'], 404);
+        }
+        
+        // Use validated() to get only validated fields
+        $validatedData = $request->validated();
+        
+        // Update only allowed fields
+        if (isset($validatedData['title'])) {
+            $ticket->setTitle($validatedData['title']);
+        }
+        
+        if (isset($validatedData['description'])) {
+            $ticket->setDescription($validatedData['description']);
+        }
+        
+        if (isset($validatedData['priority'])) {
+            $ticket->setPriority(\App\Domains\Tickets\ValueObjects\PriorityTicket::fromString($validatedData['priority']));
+        }
+        
+        if (isset($validatedData['category_id'])) {
+            $ticket->setCategoryId($validatedData['category_id']);
+        }
+        
+        // Save the updated ticket
+        $this->ticketRepository->update($ticket);
+        
+        return response()->json(new TicketResource($ticket));
+    }
     public function show(int $id): JsonResponse
     {
         $ticket = $this->ticketRepository->findById($id);
@@ -182,39 +215,6 @@ class TicketController extends Controller
         }
     } 
 
-    public function update(int $id, UpdateTicketRequest $request): JsonResponse
-    {
-        $ticket = $this->ticketRepository->findById($id);
-        
-        if (!$ticket) {
-            return response()->json(['message' => 'Ticket not found'], 404);
-        }
-        
-        // Use validated() to get only validated fields
-        $validatedData = $request->validated();
-        
-        // Update only allowed fields
-        if (isset($validatedData['title'])) {
-            $ticket->setTitle($validatedData['title']);
-        }
-        
-        if (isset($validatedData['description'])) {
-            $ticket->setDescription($validatedData['description']);
-        }
-        
-        if (isset($validatedData['priority'])) {
-            $ticket->setPriority(\App\Domains\Tickets\ValueObjects\PriorityTicket::fromString($validatedData['priority']));
-        }
-        
-        if (isset($validatedData['category_id'])) {
-            $ticket->setCategoryId($validatedData['category_id']);
-        }
-        
-        // Save the updated ticket
-        $this->ticketRepository->update($ticket);
-        
-        return response()->json(new TicketResource($ticket));
-    }
     public function destroy(int $id): JsonResponse
     {
         $ticket = $this->ticketRepository->findById($id);
