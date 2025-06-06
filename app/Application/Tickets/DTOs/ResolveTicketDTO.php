@@ -8,7 +8,7 @@ class ResolveTicketDTO
     public string $solution;
     public string $comment;
     
-    // Informations sur l'utilisateur effectuant la résolution
+// User information performing the resolution    
     public int $userId;
     public string $userLastName;
     public string $userFirstName;

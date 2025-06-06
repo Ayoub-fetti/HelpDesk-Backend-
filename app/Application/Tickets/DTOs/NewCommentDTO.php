@@ -8,7 +8,7 @@ class NewCommentDTO
     public string $content;
     public bool $isPrivate;
     
-    // Informations sur l'utilisateur ajoutant le commentaire
+    // User information adding the comment
     public int $userId;
     public string $userLastName;
     public string $userFirstName;

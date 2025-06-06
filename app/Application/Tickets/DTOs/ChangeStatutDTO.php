@@ -8,7 +8,7 @@ class ChangeStatutDTO
     public string $newStatut;
     public string $comment;
     
-    // Informations sur l'utilisateur effectuant le changement
+    // User information making the change
     public int $userId;
     public string $userLastName;
     public string $userFirstName;

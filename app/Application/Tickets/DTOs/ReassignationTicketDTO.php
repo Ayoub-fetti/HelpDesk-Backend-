@@ -7,14 +7,14 @@ class ReassignationTicketDTO
     public int $ticketId;
     public string $comment;
     
-    // Informations sur l'utilisateur effectuant la réassignation
+// User information performing the reassignment    
     public int $userId;
     public string $userLastName;
     public string $userFirstName;
     public string $userEmail;
     public string $userType;
     
-    // Informations sur le technicien à assigner
+// Information on the technician to assign    
     public int $technicianId;
     public string $technicianLastName;
     public string $technicianFirstName;

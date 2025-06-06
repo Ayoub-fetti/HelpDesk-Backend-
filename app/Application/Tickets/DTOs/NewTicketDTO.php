@@ -9,7 +9,7 @@ class NewTicketDTO
     public string $priority;
     public int $categoryId;
     
-    // Informations sur l'utilisateur qui crée le ticket
+    // User information which creates the ticket
     public int $userId;
     public string $userLastName;
     public string $userFirstName;
@@ -17,7 +17,7 @@ class NewTicketDTO
     public string $userPhone;
     public string $userType;
     
-    // Informations sur le technicien assigné (optionnel)
+    // Information on the assigned technician (optional)
     public ?int $technicianId = null;
     public ?string $technicianLastName = null;
     public ?string $technicianFirstName = null;
