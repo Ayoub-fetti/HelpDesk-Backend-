@@ -25,5 +25,6 @@ Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
     
     // Tracking Time 
     Route::get('/{id}/tracking', [TrackingTimeController::class, 'index']);
-    Route::post('/{id}/tracking', [TrackingTimeController::class, 'store']);
+    Route::post('/{id}/tracking-time/start', [TrackingTimeController::class, 'startChrono']);
+    Route::post('/{id}/tracking-time/stop', [TrackingTimeController::class, 'stopChrono']);
 });
