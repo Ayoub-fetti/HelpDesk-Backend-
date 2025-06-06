@@ -42,9 +42,9 @@ class CommentController extends Controller
             $user->id,
             $user->lastName,
             $user->firstName,
-            $user->user_type,
+            $user->user_type ?? 'technician',
             $user->email,
-            $request->is_private ?? false
+            $request['is_private'] ?? false // Make sure we get the boolean value correctly
         );
         
         try {

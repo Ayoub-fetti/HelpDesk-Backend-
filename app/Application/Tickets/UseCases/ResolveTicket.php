@@ -2,12 +2,12 @@
 
 namespace App\Application\Tickets\UseCases;
 
-use App\Application\Tickets\DTOs\ReassignationTicketDTO;
+use App\Application\Tickets\DTOs\ResolveTicketDTO;
 use App\Domains\Tickets\Repositories\TicketRepositoryInterface;
 use App\Domains\Tickets\Services\TicketService;
 use App\Domains\Shared\ValueObjects\IdentiteUser;
 
-class ReassignerTicket
+class ResolveTicket
 {
     private $ticketRepository;
     private $ticketService;
@@ -20,7 +20,7 @@ class ReassignerTicket
         $this->ticketService = $ticketService;
     }
 
-    public function execute(ReassignationTicketDTO $dto): void
+    public function execute(ResolveTicketDTO $dto): void
     {
         // Récupérer le ticket depuis le repository
         $ticket = $this->ticketRepository->findById($dto->ticketId);
@@ -30,26 +30,25 @@ class ReassignerTicket
         }
 
         // Créer l'identité de l'utilisateur effectuant l'action
-        $userEffectuantAction = new IdentiteUser(
+        $user = new IdentiteUser(
             $dto->userId,
             $dto->userLastName,
             $dto->userFirstName,
-            $dto->userEmail,  
+            $dto->userEmail,
             $dto->userType
         );
 
-        // Créer l'identité du technicien à assigner
-        $technician = new IdentiteUser(
-            $dto->technicianId,
-            $dto->technicianLastName,
-            $dto->technicianFirstName,
-            $dto->technicianEmail,
-            'technician',
-            $dto->technicianPhone
-        );
-
-        // Appeler le service de domaine pour assigner le technicien
-        $this->ticketService->assignTechnician($ticket, $technician, $userEffectuantAction);
+        // Appeler le service de domaine pour résoudre le ticket
+        $this->ticketService->resolveTicket($ticket, $dto->solution, $user);
+        
+        // Ajouter un commentaire si fourni
+        if (!empty($dto->comment)) {
+            $this->ticketService->addComment(
+                $ticket,
+                $dto->comment,
+                $user
+            );
+        }
         
         // Sauvegarder les modifications
         $this->ticketRepository->update($ticket);

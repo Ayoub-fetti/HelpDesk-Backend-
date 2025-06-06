@@ -142,6 +142,8 @@ class TicketService
                 StatutTicket::IN_PROGRESS->toString(),
                 StatutTicket::ON_HOLD->toString(),
                 StatutTicket::NEW->toString(), // Retirer l'assignation
+                StatutTicket::RESOLVED->toString(), // Added this line
+
             ],
             StatutTicket::IN_PROGRESS->toString() => [
                 StatutTicket::ON_HOLD->toString(),
@@ -173,7 +175,7 @@ class TicketService
     }
     
     
-    // Vérifie les permissions de l'user pour changer le statut d'un ticket
+    //Check the permissions of the user to change the status of a ticket
 
     private function checkPermissionChangeStatus(Ticket $ticket, StatutTicket $newStatut, IdentiteUser $user): void
     {
@@ -182,14 +184,14 @@ class TicketService
             return;
         }
         
-        // Vérifier si l'user est le technicien assigné au ticket
+        //Check if the user is the technician assigned to the ticket
         $estTechnicienAssigne = $ticket->getTechniciAn() && 
                                 $ticket->getTechniciAn()->getId() === $user->getId();
         
-        // Vérifier si l'user est l'user qui a créé le ticket
+        //Check if the user is the user that created the ticket        
         $estCreateur = $ticket->getUser()->getId() === $user->getId();
         
-        // Règles spécifiques selon le statut
+        //Specific rules depending on the status
         switch ($newStatut) {
             case StatutTicket::CLOSED:
             case StatutTicket::RESOLVED:

@@ -2,13 +2,13 @@
 
 namespace App\Application\Tickets\DTOs;
 
-class CloseTicketDTO
+class ResolveTicketDTO
 {
     public int $ticketId;
-    public ?string $solution;
+    public string $solution;
     public string $comment;
     
-    // User information performing the fence
+// User information performing the resolution    
     public int $userId;
     public string $userLastName;
     public string $userFirstName;
@@ -17,21 +17,21 @@ class CloseTicketDTO
     
     public function __construct(
         int $ticketId,
+        string $solution,
         int $userId,
         string $userLastName,
         string $userFirstName,
         string $userType,
         string $userEmail,
-        ?string $solution = null,
         string $comment = ''
     ) {
         $this->ticketId = $ticketId;
+        $this->solution = $solution;
         $this->userId = $userId;
         $this->userLastName = $userLastName;
         $this->userFirstName = $userFirstName;
         $this->userType = $userType;
         $this->userEmail = $userEmail;
-        $this->solution = $solution;
         $this->comment = $comment;
     }
 }
