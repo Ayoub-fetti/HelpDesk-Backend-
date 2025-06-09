@@ -179,10 +179,11 @@ class TicketService
 
     private function checkPermissionChangeStatus(Ticket $ticket, StatutTicket $newStatut, IdentiteUser $user): void
     {
-        // Les administrateurs peuvent tout faire
-        if ($user->isAdministrator()) {
-            return;
-        }
+
+        // Get the actual User model to check permissions
+        $userModel = \App\Models\User::find($user->getId());
+
+        if ($userModel && $userModel->can('change status')) {
         
         //Check if the user is the technician assigned to the ticket
         $estTechnicienAssigne = $ticket->getTechniciAn() && 
@@ -211,5 +212,6 @@ class TicketService
                 }
                 break;
         }
+    }
     }
 }
