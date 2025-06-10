@@ -23,6 +23,7 @@ use App\Infrastructure\Http\Requests\Tickets\ChangeStatusRequest;
 use App\Infrastructure\Http\Requests\Tickets\CloseTicketRequest;
 use App\Infrastructure\Http\Resources\TicketResource;
 use App\Domains\Tickets\Repositories\TicketRepositoryInterface;
+use App\Domains\Tickets\ValueObjects\PriorityTicket;
 use App\Infrastructure\Http\Requests\Tickets\UpdateTicketRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -92,7 +93,7 @@ class TicketController extends Controller
         }
         
         if (isset($validatedData['priority'])) {
-            $ticket->setPriority(\App\Domains\Tickets\ValueObjects\PriorityTicket::fromString($validatedData['priority']));
+            $ticket->setPriority(PriorityTicket::fromString($validatedData['priority']));
         }
         
         if (isset($validatedData['category_id'])) {

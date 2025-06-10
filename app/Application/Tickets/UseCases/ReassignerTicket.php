@@ -6,6 +6,9 @@ use App\Application\Tickets\DTOs\ReassignationTicketDTO;
 use App\Domains\Tickets\Repositories\TicketRepositoryInterface;
 use App\Domains\Tickets\Services\TicketService;
 use App\Domains\Shared\ValueObjects\IdentiteUser;
+use App\Models\User;
+use App\Notifications\TicketAssigned;
+use Illuminate\Support\Facades\Notification;
 
 class ReassignerTicket
 {
@@ -53,5 +56,17 @@ class ReassignerTicket
         
         // Sauvegarder les modifications
         $this->ticketRepository->update($ticket);
+        
+        // Send notification to the technician
+        $technicianUser = User::find($technician->getId());
+        if ($technicianUser) {
+            $technicianUser->notify(new TicketAssigned($ticket, $userEffectuantAction));
+        }
+        
+        // Also notify the ticket creator
+        $creatorUser = User::find($ticket->getUser()->getId());
+        if ($creatorUser && $creatorUser->id !== $userEffectuantAction->getId()) {
+            $creatorUser->notify(new TicketAssigned($ticket, $userEffectuantAction));
+        }
     }
 }
