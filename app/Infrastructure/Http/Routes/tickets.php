@@ -33,7 +33,7 @@ Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
     });
     
     // Routes requiring 'change status' permission
-    Route::middleware('permission:change status')->group(function() {
+    Route::middleware('permission:change statut')->group(function() {
         Route::post('/{id}/status', [TicketController::class, 'changeStatus']);
     });
     

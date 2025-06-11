@@ -23,7 +23,7 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::create(['name' => 'edit tickets']);
         Permission::create(['name' => 'delete tickets']);
         Permission::create(['name' => 'assign tickets']);
-        Permission::create(['name' => 'change tickets']);
+        Permission::create(['name' => 'change statut']);
         Permission::create(['name' => 'resolve tickets']);
         Permission::create(['name' => 'close tickets']);
         Permission::create(['name' => 'reopen tickets']);
@@ -52,8 +52,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'edit tickets',
             'view comments',
             'add comments',
-            'change tickets',
+            'change statut',
             'resolve tickets',
+            'close tickets',
             'view time tracking',
             'track time',   
         ]);
@@ -64,9 +65,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'create tickets',
             'edit tickets',
             'assign tickets',
-            'change tickets',
+            'change statut',
             'resolve tickets',
-            'close tickets',
             'view comments',
             'add comments',
             'view time tracking',
