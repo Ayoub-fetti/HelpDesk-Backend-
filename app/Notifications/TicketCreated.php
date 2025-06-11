@@ -6,6 +6,10 @@ use Illuminate\Notifications\Messages\MailMessage;
 
 class TicketCreated extends BaseTicketNotification
 {
+    public function via(object $notifiable): array
+    {
+        return ['mail', 'database'];
+    }
   
     public function toMail(object $notifiable): MailMessage
     {
@@ -25,6 +29,7 @@ class TicketCreated extends BaseTicketNotification
         return array_merge($this->getTicketData(), [
             'type' => 'ticket_created',
             'message' => 'A new ticket has been created',
+            'title' => 'New Ticket: ' . $this->ticket->getTitle(),
         ]);
     }
 

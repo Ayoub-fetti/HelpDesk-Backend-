@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-abstract class BaseTicketNotification extends Notification
+abstract class BaseTicketNotification extends Notification 
 {
     use Queueable;
 

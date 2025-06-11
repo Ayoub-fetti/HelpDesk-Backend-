@@ -66,9 +66,10 @@ class User extends Authenticatable
         return $this->hasMany(Feedback::class, 'user_id');
     }
     
-    public function notifications(): HasMany
+    public function notifications()
     {
-        return $this->hasMany(Notification::class, 'user_id');
+        return $this->morphMany(Notification::class, 'notifiable')
+                    ->orderBy('created_at', 'desc');
     }
     
     public function reports(): HasMany
