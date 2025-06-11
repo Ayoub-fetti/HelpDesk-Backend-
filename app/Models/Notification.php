@@ -3,27 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-class Notification extends Model
+class Notification extends DatabaseNotification
 {
     use HasFactory;
-    
-    protected $fillable = [
-        'user_id',
-        'title',
-        'message',
-        'type',
-        'read',
-    ];
-    
-    protected $casts = [
-        'read' => 'boolean',
-    ];
-    
-    public function user(): BelongsTo
+
+    /**
+     * Get the notifiable entity that the notification belongs to.
+     */
+    public function notifiable(): MorphTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->morphTo();
     }
 }

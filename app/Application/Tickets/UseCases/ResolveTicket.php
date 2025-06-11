@@ -6,6 +6,9 @@ use App\Application\Tickets\DTOs\ResolveTicketDTO;
 use App\Domains\Tickets\Repositories\TicketRepositoryInterface;
 use App\Domains\Tickets\Services\TicketService;
 use App\Domains\Shared\ValueObjects\IdentiteUser;
+use App\Models\User;
+use App\Notifications\TicketResolved;
+use Illuminate\Support\Facades\Notification;
 
 class ResolveTicket
 {
@@ -52,5 +55,24 @@ class ResolveTicket
         
         // Sauvegarder les modifications
         $this->ticketRepository->update($ticket);
+        
+        // Notify ticket creator and supervisors
+        $usersToNotify = [];
+        
+        // Always notify the ticket creator
+        $creatorUser = User::find($ticket->getUser()->getId());
+        if ($creatorUser && $creatorUser->id !== $dto->userId) {
+            $usersToNotify[] = $creatorUser;
+        }
+        
+        // Notify supervisors except the one resolving the ticket
+        $supervisors = User::where('user_type', 'supervisor')
+            ->where('id', '!=', $dto->userId)
+            ->get();
+        
+        $usersToNotify = array_merge($usersToNotify, $supervisors->all());
+        
+        // Send notifications
+        Notification::send($usersToNotify, new TicketResolved($ticket, $user));
     }
 }
