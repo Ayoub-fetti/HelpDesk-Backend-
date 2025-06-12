@@ -76,7 +76,7 @@ class AddNewTicket
             }
         }
         
-        Notification::send($usersToNotify, new TicketCreated($ticket, $user));
+        // Notification::send($usersToNotify, new TicketCreated($ticket, $user));
         
         return $ticketId;
     }

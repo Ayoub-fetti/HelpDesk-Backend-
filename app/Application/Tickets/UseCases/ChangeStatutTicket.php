@@ -78,6 +78,6 @@ class ChangeStatutTicket
         }
         
         // Send notifications
-        Notification::send($usersToNotify, new TicketStatusChanged($ticket, $oldStatus, $newStatut, $user));
+        // Notification::send($usersToNotify, new TicketStatusChanged($ticket, $oldStatus, $newStatut, $user));
     }
 }
