@@ -24,6 +24,7 @@ public function store(LoginRequest $request): JsonResponse
     return response()->json([
     'message' => 'Logged in successfully',
     'user' => $request->user(),
+    'token' => $token,
 ]);
 }
 

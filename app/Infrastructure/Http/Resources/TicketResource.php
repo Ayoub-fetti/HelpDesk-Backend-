@@ -2,6 +2,7 @@
 
 namespace App\Infrastructure\Http\Resources;
 
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -12,13 +13,20 @@ class TicketResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $category = Category::find($this->getCategoryId());
+
+
         return [
             'id' => $this->getId(),
             'title' => $this->getTitle(),
             'description' => $this->getDescription(),
             'statut' => $this->getStatut()->toString(),
             'priority' => $this->getPriority()->toString(),
-            'category_id' => $this->getCategoryId(),
+            'category' => $category ? [
+                'id' => $category->id,
+                'name' => $category->name,
+                'description' => $category->description,
+            ] : null,
             'user' => [
                 'id' => $this->getUser()->getId(),
                 'lastName' => $this->getUser()->getLastName(),
