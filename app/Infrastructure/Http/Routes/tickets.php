@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Infrastructure\Http\Controllers\Tickets\TicketController;
 use App\Infrastructure\Http\Controllers\Tickets\CommentController;
 use App\Infrastructure\Http\Controllers\Tickets\TrackingTimeController;
+use App\Infrastructure\Http\Controllers\Tickets\CategoryController;
 
 Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
     // Routes accessible with 'view tickets' permission
@@ -67,3 +68,13 @@ Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
         Route::post('/{id}/tracking-time/stop', [TrackingTimeController::class, 'stopChrono']);
     });
 });
+
+    Route::get('/categories', [CategoryController::class, 'index']);
+
+    Route::middleware(['auth:sanctum', 'role:administrator'])->prefix('categories')->group(function () {
+
+        Route::get('/{id}', [CategoryController::class, 'show']);
+        Route::post('/', [CategoryController::class, 'store']);
+        Route::put('/{id}', [CategoryController::class, 'update']);
+        Route::delete('/{id}', [CategoryController::class, 'destroy']);
+    });

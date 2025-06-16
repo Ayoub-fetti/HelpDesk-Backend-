@@ -298,6 +298,37 @@ class EloquentTicketRepository implements TicketRepositoryInterface
         return $attachmentModel->id;
     }
     
+    /**
+     * Get all attachments for a ticket
+     */
+    public function getAttachmentsByTicketId(int $ticketId): array
+    {
+        $attachmentModels = \App\Models\Attachment::where('ticket_id', $ticketId)->get();
+        $attachments = [];
+        
+        foreach ($attachmentModels as $model) {
+            $attachments[] = new \App\Domains\Tickets\Entities\Attachment(
+                $model->id,
+                $model->ticket_id,
+                $model->file_name,
+                $model->file_path,
+                $model->type_mime,
+                $model->file_size,
+                new \DateTime($model->created_at)
+            );
+        }
+        
+        return $attachments;
+    }
+
+    /**
+     * Remove an attachment
+     */
+    public function removeAttachment(int $attachmentId): bool
+    {
+        return \App\Models\Attachment::destroy($attachmentId) > 0;
+    }
+    
     
     // Convertit un modèle Eloquent de ticket en entité du domaine
     

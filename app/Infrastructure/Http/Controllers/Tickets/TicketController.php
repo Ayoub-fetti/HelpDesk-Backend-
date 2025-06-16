@@ -109,7 +109,49 @@ class TicketController extends Controller
         // Save the updated ticket
         $this->ticketRepository->update($ticket);
         
-        return response()->json(new TicketResource($ticket));
+        // Debug information - remove in production
+        $debug = [
+            'has_file' => $request->hasFile('attachments'),
+            'files_count' => $request->hasFile('attachments') ? count($request->file('attachments')) : 0,
+            'all_input' => $request->all(),
+        ];
+        
+        // Handle file attachments if any
+        if ($request->hasFile('attachments')) {
+            $files = $request->file('attachments');
+            if (!is_array($files)) {
+                $files = [$files]; // Convert to array if single file
+            }
+            
+            foreach ($files as $file) {
+                if ($file->isValid()) {
+                    $fileData = $this->fileUploadService->uploadTicketAttachment($file, $id);
+                    
+                    $attachment = new AttachmentEntity(
+                        0, // ID will be set when saved
+                        $id,
+                        $fileData['file_name'],
+                        $fileData['file_path'],
+                        $fileData['type_mime'],
+                        $fileData['file_size']
+                    );
+                    
+                    $this->ticketRepository->addAttachment($attachment);
+                    $debug['uploaded_file'] = $fileData['file_name'];
+                } else {
+                    $debug['file_error'] = $file->getError();
+                }
+            }
+        }
+        
+        // Refresh the ticket to include any new attachments
+        $ticket = $this->ticketRepository->findById($id);
+        
+        // Return the updated ticket with debug info for troubleshooting
+        return response()->json([
+            'ticket' => new TicketResource($ticket),
+            'debug' => $debug
+        ]);
     }
     public function show(int $id): JsonResponse
     {

@@ -26,6 +26,7 @@ class UpdateTicketRequest extends FormRequest
             'description' => 'sometimes|string',
             'priority' => 'sometimes|string|in:low,average,high,urgent',
             'category_id' => 'sometimes|integer|exists:categories,id',
+            'attachments.*' => 'sometimes|file|max:10240',
         ];
     }
 
