@@ -86,6 +86,7 @@ class TicketController extends Controller
             return response()->json(['message' => 'Ticket not found'], 404);
         }
         
+        
         // Use validated() to get only validated fields
         $validatedData = $request->validated();
         
