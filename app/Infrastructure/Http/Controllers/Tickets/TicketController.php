@@ -26,14 +26,20 @@ use App\Domains\Tickets\Repositories\TicketRepositoryInterface;
 use App\Domains\Tickets\ValueObjects\PriorityTicket;
 use App\Infrastructure\Http\Requests\Tickets\UpdateTicketRequest;
 use Illuminate\Support\Facades\Auth;
+use App\Infrastructure\Services\FileUploadService;
+use App\Domains\Tickets\Entities\Attachment as AttachmentEntity;
 
 class TicketController extends Controller
 {
     private $ticketRepository;
+    private $fileUploadService;
 
-    public function __construct(TicketRepositoryInterface $ticketRepository)
-    {
+    public function __construct(
+        TicketRepositoryInterface $ticketRepository,
+        FileUploadService $fileUploadService
+    ) {
         $this->ticketRepository = $ticketRepository;
+        $this->fileUploadService = $fileUploadService;
     }
 
     public function index(Request $request): JsonResponse
@@ -139,8 +145,34 @@ class TicketController extends Controller
         );
         
         try {
+            // Create the ticket first
             $ticketId = $useCase->execute($dto);
-            $ticket = $this->ticketRepository->findById($ticketId);
+            
+            // Handle file attachments if any
+            if ($request->hasFile('attachments')) {
+                $ticket = $this->ticketRepository->findById($ticketId);
+                
+                foreach ($request->file('attachments') as $file) {
+                    $fileData = $this->fileUploadService->uploadTicketAttachment($file, $ticketId);
+                    
+                    $attachment = new AttachmentEntity(
+                        0, // ID will be set when saved
+                        $ticketId,
+                        $fileData['file_name'],
+                        $fileData['file_path'],
+                        $fileData['type_mime'],
+                        $fileData['file_size']
+                    );
+                    
+                    $this->ticketRepository->addAttachment($attachment);
+                }
+                
+                // Get the updated ticket with attachments
+                $ticket = $this->ticketRepository->findById($ticketId);
+            } else {
+                $ticket = $this->ticketRepository->findById($ticketId);
+            }
+            
             return response()->json(new TicketResource($ticket), 201);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 400);

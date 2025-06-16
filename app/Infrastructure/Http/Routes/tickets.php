@@ -10,6 +10,7 @@ Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
     Route::middleware('permission:view tickets')->group(function() {
         Route::get('/', [TicketController::class, 'index']);
         Route::get('/{id}', [TicketController::class, 'show']);
+        Route::post('tickets/{id}/attachments', [TicketController::class, 'addAttachments']);
     });
     
     // Routes requiring 'create tickets' permission

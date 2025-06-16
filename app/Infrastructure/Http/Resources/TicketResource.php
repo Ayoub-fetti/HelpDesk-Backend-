@@ -47,6 +47,26 @@ class TicketResource extends JsonResource
             'solution' => $this->getSolution(),
             'time_pass_total' => $this->getTimePass(),
             'comments' => CommentResource::collection($this->getComments()),
+            'attachments' => $this->formatAttachments(),
         ];
+    }
+    protected function formatAttachments(): array
+    {
+        $attachments = $this->getAttachments();
+        $formattedAttachments = [];
+        
+        foreach ($attachments as $attachment) {
+            $formattedAttachments[] = [
+                'id' => $attachment->getId(),
+                'file_name' => $attachment->getFileName(),
+                'file_path' => $attachment->getFilePath(),
+                'type_mime' => $attachment->getTypeMime(),
+                'file_size' => $attachment->getFileSize(),
+                'url' => asset('storage/' . $attachment->getFilePath()),
+                'upload_date' => $attachment->getUploadDate()
+            ];
+        }
+        
+        return $formattedAttachments;
     }
 }
