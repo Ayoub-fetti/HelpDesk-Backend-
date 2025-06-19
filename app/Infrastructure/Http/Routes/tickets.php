@@ -32,6 +32,8 @@ Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
     // Routes requiring 'assign tickets' permission (supervisor and admin)
     Route::middleware('permission:assign tickets')->group(function() {
         Route::post('/{id}/assign', [TicketController::class, 'assign']);
+        Route::post('/{id}/unassign', [TicketController::class, 'unassign']); // Add this line
+
     });
     
     // Routes requiring 'change status' permission

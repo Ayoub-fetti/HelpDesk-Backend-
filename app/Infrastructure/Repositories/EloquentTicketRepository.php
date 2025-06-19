@@ -13,6 +13,7 @@ use App\Models\Ticket as TicketModel;
 use App\Models\Comment as CommentModel;
 use App\Models\User;
 use DateTime;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
 class EloquentTicketRepository implements TicketRepositoryInterface
@@ -162,18 +163,23 @@ class EloquentTicketRepository implements TicketRepositoryInterface
     
     public function update(Ticket $ticket): void
     {
-        $ticketData = $this->prepareTicketData($ticket);
-        
-        TicketModel::where('id', $ticket->getId())->update($ticketData);
-        
-        // Si de nouveaux commentaires ont été ajoutés, les enregistrer
-        $existingComments = CommentModel::where('ticket_id', $ticket->getId())->pluck('id')->toArray();
-        
-        foreach ($ticket->getComments() as $comment) {
-            if ($comment->getId() === 0 || !in_array($comment->getId(), $existingComments)) {
-                $this->addComment($comment, $ticket->getId());
-            }
+        $ticketModel = TicketModel::find($ticket->getId());
+        if (!$ticketModel) {
+            throw new ModelNotFoundException('Ticket not found');
         }
+
+        $ticketModel->update([
+            'title' => $ticket->getTitle(),
+            'description' => $ticket->getDescription(),
+            'status' => $ticket->getStatut(),
+            'priority' => ($ticket->getPriority()->toString()),
+            'category_id' => $ticket->getCategoryId(),
+            'user_id' => $ticket->getUser()->getId(),
+            'technician_id' => $ticket->getTechnician() ? $ticket->getTechnician()->getId() : null, // Ensure null is saved when no technician
+            'resolution_date' => $ticket->getResolutionDate(),
+            'solution' => $ticket->getSolution(),
+            'time_pass_total' => $ticket->getTimePass()
+        ]);
     }
     
     public function addComment(Comment $comment, ?int $ticketId = null): int

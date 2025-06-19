@@ -248,6 +248,26 @@ class TicketController extends Controller
             return response()->json(['message' => $e->getMessage()], 400);
         }
     }
+    public function unassign(int $id): JsonResponse
+    {
+        $ticket = $this->ticketRepository->findById($id);
+        
+        if (!$ticket) {
+            return response()->json(['message' => 'Ticket not found'], 404);
+        }
+
+        try {
+            $ticket->withdrawTechnician();
+            $this->ticketRepository->update($ticket);
+            
+            return response()->json([
+                'message' => 'Technician unassigned successfully',
+                'ticket' => new TicketResource($ticket)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 400);
+        }
+    }
 
     public function changeStatus(int $id, ChangeStatusRequest $request, ChangeStatutTicket $useCase): JsonResponse
     {
