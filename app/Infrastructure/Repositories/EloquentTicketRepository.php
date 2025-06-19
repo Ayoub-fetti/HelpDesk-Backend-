@@ -364,6 +364,17 @@ class EloquentTicketRepository implements TicketRepositoryInterface
             new DateTime($ticketModel->created_at)
         );
         
+        if ($ticketModel->technician) {
+        $technician = new IdentiteUser(
+            $ticketModel->technician->id,
+            $ticketModel->technician->lastName,
+            $ticketModel->technician->firstName,
+            $ticketModel->technician->email,
+            $ticketModel->technician->userType ?? 'technician'
+        );
+        $ticket->assignTechnician($technician);
+    }
+        
         if ($technician) {
             $ticket->assignTechnician($technician);
         }

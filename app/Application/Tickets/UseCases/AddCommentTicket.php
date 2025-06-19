@@ -82,7 +82,7 @@ class AddCommentTicket
         }
         
         // Send notifications
-        // Notification::send($usersToNotify, new CommentAdded($ticket, $newComment, $user));
+        Notification::send($usersToNotify, new CommentAdded($ticket, $newComment, $user));
         
         return $newComment->getId();
     }

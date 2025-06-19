@@ -29,7 +29,6 @@ class CreateTicketRequest extends FormRequest
             'technician_first_name' => 'nullable|string|max:255',
             'technician_email' => 'nullable|email',
             'technician_phone' => 'nullable|string|max:20',
-            'phone' => 'nullable|string|max:20',
             'attachments.*' => 'nullable|file|max:10240',
         ];
     }

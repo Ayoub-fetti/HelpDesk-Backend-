@@ -73,6 +73,6 @@ class ResolveTicket
         $usersToNotify = array_merge($usersToNotify, $supervisors->all());
         
         // Send notifications
-        // Notification::send($usersToNotify, new TicketResolved($ticket, $user));
+        Notification::send($usersToNotify, new TicketResolved($ticket, $user));
     }
 }

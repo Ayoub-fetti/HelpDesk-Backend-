@@ -70,15 +70,28 @@ class TrackingTimeController extends Controller
         $now = now();
         $activeTracking->end_date = $now;
         
-        // Calculate duration in hours
+        // Calculate duration components
         $startTime = new \DateTime($activeTracking->start_date);
         $endTime = new \DateTime($now);
         $interval = $startTime->diff($endTime);
-        $duration = $interval->h + ($interval->i / 60) + ($interval->s / 3600);
         
+        // Store total duration in hours for database (keep this for compatibility)
+        $duration = $interval->h + ($interval->i / 60) + ($interval->s / 3600);
         $activeTracking->duration = round($duration, 2);
+        
+        // Format duration for display
+        $formattedDuration = [
+            'hours' => $interval->h,
+            'minutes' => $interval->i,
+            'seconds' => $interval->s
+        ];
+        
         $activeTracking->save();
         
-        return response()->json(new TrackingTimeResource($activeTracking));
+        // Add formatted duration to resource response
+        $resource = new TrackingTimeResource($activeTracking);
+        $response = $resource->additional(['formatted_duration' => $formattedDuration]);
+        
+        return response()->json($response);
     }
 }

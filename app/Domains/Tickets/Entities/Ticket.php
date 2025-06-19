@@ -125,7 +125,7 @@ class Ticket
     public function assignTechnician(IdentiteUser $technician): void
     {
         $this->technician = $technician;
-        $this->statut = StatutTicket::ASSIGNED;
+        // $this->statut = StatutTicket::ASSIGNED;
     }
 
     public function withdrawTechnician(): void
