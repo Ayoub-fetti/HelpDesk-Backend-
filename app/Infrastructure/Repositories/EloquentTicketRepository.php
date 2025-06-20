@@ -171,7 +171,7 @@ class EloquentTicketRepository implements TicketRepositoryInterface
         $ticketModel->update([
             'title' => $ticket->getTitle(),
             'description' => $ticket->getDescription(),
-            'status' => $ticket->getStatut(),
+            'statut' => ($ticket->getStatut()->toString()),
             'priority' => ($ticket->getPriority()->toString()),
             'category_id' => $ticket->getCategoryId(),
             'user_id' => $ticket->getUser()->getId(),

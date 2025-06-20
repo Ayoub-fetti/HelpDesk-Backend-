@@ -25,7 +25,6 @@ class RegisteredUserController extends Controller
             'firstName' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'user_type' => ['sometimes', 'in:administrator,technician,supervisor,final_user'],
         ]);
 
         // Set user_type to 'final_user' by default if not provided
@@ -36,7 +35,7 @@ class RegisteredUserController extends Controller
             'firstName' => $request->firstName,
             'email' => $request->email,
             'password' => Hash::make($request->string('password')),
-            'user_type' => $userType,
+            'user_type' => 'final_user',
         ]);
 
         $user->assignRole('final_user');
