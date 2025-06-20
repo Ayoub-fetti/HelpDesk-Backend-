@@ -1,5 +1,6 @@
 <?php
 
+use App\Infrastructure\Http\Controllers\Administrator\AdminController;
 use Illuminate\Support\Facades\Route;
 use App\Infrastructure\Http\Controllers\Tickets\TicketController;
 use App\Infrastructure\Http\Controllers\Tickets\CommentController;
@@ -7,46 +8,46 @@ use App\Infrastructure\Http\Controllers\Tickets\TrackingTimeController;
 use App\Infrastructure\Http\Controllers\Tickets\CategoryController;
 
 Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
-    // Routes accessible with 'view tickets' permission
+
     Route::middleware('permission:view tickets')->group(function() {
         Route::get('/', [TicketController::class, 'index']);
         Route::get('/{id}', [TicketController::class, 'show']);
         Route::post('tickets/{id}/attachments', [TicketController::class, 'addAttachments']);
     });
     
-    // Routes requiring 'create tickets' permission
+
     Route::middleware('permission:create tickets')->group(function() {
         Route::post('/', [TicketController::class, 'store']);
     });
     
-    // Routes requiring 'edit tickets' permission
+
     Route::middleware('permission:edit tickets')->group(function() {
         Route::put('/{id}', [TicketController::class, 'update']);
     });
     
-    // Routes requiring 'delete tickets' permission (admin only)
+
     Route::middleware('permission:delete tickets')->group(function() {
         Route::delete('/{id}', [TicketController::class, 'destroy']);
     });
     
-    // Routes requiring 'assign tickets' permission (supervisor and admin)
+
     Route::middleware('permission:assign tickets')->group(function() {
         Route::post('/{id}/assign', [TicketController::class, 'assign']);
-        Route::post('/{id}/unassign', [TicketController::class, 'unassign']); // Add this line
+        Route::post('/{id}/unassign', [TicketController::class, 'unassign']); 
 
     });
     
-    // Routes requiring 'change status' permission
+
     Route::middleware('permission:change statut')->group(function() {
         Route::post('/{id}/status', [TicketController::class, 'changeStatus']);
     });
     
-    // Routes requiring 'resolve tickets' permission
+
     Route::middleware('permission:resolve tickets')->group(function() {
         Route::post('/{id}/resolve', [TicketController::class, 'resolveTicket']);
     });
     
-    // Routes requiring 'close tickets' permission
+
     Route::middleware('permission:close tickets')->group(function() {
         Route::post('/{id}/close', [TicketController::class, 'close']);
     });
@@ -73,6 +74,7 @@ Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
 
     Route::get('/categories', [CategoryController::class, 'index']);
 
+    // admin routes 
     Route::middleware(['auth:sanctum', 'role:administrator'])->prefix('categories')->group(function () {
 
         Route::get('/{id}', [CategoryController::class, 'show']);
@@ -80,3 +82,11 @@ Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
         Route::put('/{id}', [CategoryController::class, 'update']);
         Route::delete('/{id}', [CategoryController::class, 'destroy']);
     });
+
+    Route::middleware(['auth:sanctum', 'role:administrator'])->prefix('admin')->group(function () {
+    Route::post('/users', [AdminController::class, 'store']);
+    Route::put('/users/{id}', [AdminController::class, 'update']);
+    Route::delete('/users/{id}', [AdminController::class, 'destroy']);
+    Route::post('/users/{id}/roles-permissions', [AdminController::class, 'assignRolesPermissions']);
+    Route::get('/permissions', [AdminController::class, 'getAllPermissions']);
+});
