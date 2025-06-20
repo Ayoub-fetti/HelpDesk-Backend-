@@ -39,7 +39,7 @@ class RegisteredUserController extends Controller
             'user_type' => $userType,
         ]);
 
-        $user->assignRole($request->user_type);
+        $user->assignRole('final_user');
 
         event(new Registered($user));
 
