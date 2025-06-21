@@ -13,6 +13,24 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
+    public function index(Request $request): JsonResponse
+    {
+        $users = User::with(['roles', 'permissions'])
+            ->select('id', 'firstName', 'lastName', 'email', 'user_type', 'departement', 'active', 'last_connection', 'specialization')
+            ->get();
+
+        return response()->json(['users' => $users]);
+    }
+    
+    public function show(int $id): JsonResponse
+    {
+        $user = User::with(['roles', 'permissions'])
+            ->select('id', 'firstName', 'lastName', 'email', 'user_type', 'departement', 'active', 'last_connection', 'specialization')
+            ->findOrFail($id);
+
+        return response()->json(['user' => $user]);
+    }
+
     // Create a new user
     public function store(Request $request): JsonResponse
     {

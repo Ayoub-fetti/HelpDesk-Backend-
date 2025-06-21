@@ -85,6 +85,8 @@ Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
 
     Route::middleware(['auth:sanctum', 'role:administrator'])->prefix('admin')->group(function () {
     Route::post('/users', [AdminController::class, 'store']);
+    Route::get('/users', [AdminController::class, 'index']);
+    Route::get('/users/{id}', [AdminController::class, 'show']);
     Route::put('/users/{id}', [AdminController::class, 'update']);
     Route::delete('/users/{id}', [AdminController::class, 'destroy']);
     Route::post('/users/{id}/roles-permissions', [AdminController::class, 'assignRolesPermissions']);

@@ -27,18 +27,21 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Set user_type to 'final_user' by default if not provided
-        $userType = $request->user_type ?? 'final_user';
+        // Check if this is the first user
+        $isFirstUser = User::count() === 0;
+
+        $userType = $isFirstUser ? 'administrator' : 'final_user';
+        $role = $isFirstUser ? 'administrator' : 'final_user';
 
         $user = User::create([
             'lastName' => $request->lastName,
             'firstName' => $request->firstName,
             'email' => $request->email,
             'password' => Hash::make($request->string('password')),
-            'user_type' => 'final_user',
+            'user_type' => $userType,
         ]);
 
-        $user->assignRole('final_user');
+        $user->assignRole($role);
 
         event(new Registered($user));
 
@@ -47,8 +50,8 @@ class RegisteredUserController extends Controller
         return response("Register successfully", 201)
             ->header('Content-Type', 'application/json')
             ->setContent(json_encode([
-            'message' => 'Register successfully',
-            'user' => $user,
+                'message' => 'Register successfully',
+                'user' => $user,
             ]));
     }
 }

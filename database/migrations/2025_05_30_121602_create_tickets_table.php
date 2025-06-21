@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description');
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('technician_id')->nullable()->constrained('users');
             $table->foreignId('category_id')->constrained('categories');
             $table->enum('priority', ['low', 'average', 'high', 'urgent'])->default('average');
