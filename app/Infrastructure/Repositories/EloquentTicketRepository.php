@@ -54,7 +54,8 @@ class EloquentTicketRepository implements TicketRepositoryInterface
                 $ticketModel->user->userType ?? 'final_user'
             ),
             $ticketModel->category_id,
-            new DateTime($ticketModel->created_at)
+            new DateTime($ticketModel->created_at),
+            new DateTime($ticketModel->updated_at)
         );
         
         if ($ticketModel->technician) {

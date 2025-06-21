@@ -42,6 +42,7 @@ class TicketResource extends JsonResource
                 'type' => $this->getTechnician()->getUserType(),
             ] : null,
             'created_at' => $this->getCreationDate()->format('Y-m-d H:i:s'),
+            'updated_at' => $this->getUpdationDate()->format('Y-m-d H:i:s'),
             'resolution_date' => $this->getResolutionDate() ? 
                 $this->getResolutionDate()->format('Y-m-d H:i:s') : null,
             'solution' => $this->getSolution(),
