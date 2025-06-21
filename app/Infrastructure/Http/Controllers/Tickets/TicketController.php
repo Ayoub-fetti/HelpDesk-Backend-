@@ -87,8 +87,9 @@ class TicketController extends Controller
         }
         
         
-        // Use validated() to get only validated fields
-        $validatedData = $request->validated();
+        $validatedData = array_filter($request->validated(), function($value) {
+            return $value !== null && $value !== '';
+        });
         
         // Update only allowed fields
         if (isset($validatedData['title'])) {
@@ -108,7 +109,7 @@ class TicketController extends Controller
         }
         
         // Save the updated ticket
-        $this->ticketRepository->update($ticket);
+        $this->ticketRepository->update($ticket, $validatedData);
         
         // Debug information - remove in production
         $debug = [
@@ -348,5 +349,37 @@ class TicketController extends Controller
         $this->ticketRepository->delete($ticket->getId());
 
         return response()->json(['message' => 'Ticket deleted successfully']);
+    }
+    public function addAttachments(int $id, Request $request): JsonResponse
+    {
+        $ticket = $this->ticketRepository->findById($id);
+        if (!$ticket) {
+            return response()->json(['message' => 'Ticket not found'], 404);
+        }
+
+        if ($request->hasFile('attachments')) {
+            $files = $request->file('attachments');
+            if (!is_array($files)) {
+                $files = [$files];
+            }
+            foreach ($files as $file) {
+                if ($file->isValid()) {
+                    $fileData = $this->fileUploadService->uploadTicketAttachment($file, $id);
+                    $attachment = new AttachmentEntity(
+                        0, $id,
+                        $fileData['file_name'],
+                        $fileData['file_path'],
+                        $fileData['type_mime'],
+                        $fileData['file_size']
+                    );
+                    $this->ticketRepository->addAttachment($attachment);
+                }
+            }
+        }
+
+        $ticket = $this->ticketRepository->findById($id);
+        return response()->json([
+            'ticket' => new TicketResource($ticket)
+        ]);
     }
 }

@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
 
     Route::middleware('permission:edit tickets')->group(function() {
         Route::put('/{id}', [TicketController::class, 'update']);
+        Route::post('/{id}/attachments', [TicketController::class, 'addAttachments']);
     });
     
 

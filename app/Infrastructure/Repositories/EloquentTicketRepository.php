@@ -163,23 +163,18 @@ class EloquentTicketRepository implements TicketRepositoryInterface
     
     public function update(Ticket $ticket): void
     {
-        $ticketModel = TicketModel::find($ticket->getId());
+        $ticketModel = \App\Models\Ticket::find($ticket->getId());
         if (!$ticketModel) {
             throw new ModelNotFoundException('Ticket not found');
         }
 
-        $ticketModel->update([
-            'title' => $ticket->getTitle(),
-            'description' => $ticket->getDescription(),
-            'statut' => ($ticket->getStatut()->toString()),
-            'priority' => ($ticket->getPriority()->toString()),
-            'category_id' => $ticket->getCategoryId(),
-            'user_id' => $ticket->getUser()->getId(),
-            'technician_id' => $ticket->getTechnician() ? $ticket->getTechnician()->getId() : null, // Ensure null is saved when no technician
-            'resolution_date' => $ticket->getResolutionDate(),
-            'solution' => $ticket->getSolution(),
-            'time_pass_total' => $ticket->getTimePass()
-        ]);
+        // Directly copy values from entity to model
+        $ticketModel->title = $ticket->getTitle();
+        $ticketModel->description = $ticket->getDescription();
+        $ticketModel->priority = $ticket->getPriority()->toString();
+        $ticketModel->category_id = $ticket->getCategoryId();
+        
+        $ticketModel->save();
     }
     
     public function addComment(Comment $comment, ?int $ticketId = null): int
