@@ -8,10 +8,12 @@ use App\Domains\Tickets\Repositories\TicketRepositoryInterface;
 use App\Domains\Tickets\ValueObjects\StatutTicket;
 use App\Domains\Tickets\ValueObjects\PriorityTicket;
 use App\Domains\Shared\ValueObjects\IdentiteUser;
+use App\Domains\Tickets\Entities\Attachment;
 use App\Models\Ticket as TicketModel;
 use App\Models\Comment as CommentModel;
 use App\Models\User;
 use DateTime;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
 class EloquentTicketRepository implements TicketRepositoryInterface
@@ -24,7 +26,73 @@ class EloquentTicketRepository implements TicketRepositoryInterface
             return null;
         }
         
-        return $this->mapTicketModelToEntity($ticketModel);
+        $attachments = [];
+        foreach ($ticketModel->attachments as $attachmentModel) {
+            $attachments[] = new Attachment(
+                $attachmentModel->id,
+                $attachmentModel->ticket_id,
+                $attachmentModel->file_name,
+                $attachmentModel->file_path,
+                $attachmentModel->type_mime,
+                $attachmentModel->file_size,
+                $attachmentModel->created_at
+            );
+        }
+        
+        // Create and return the Ticket entity with attachments
+        $ticket = new Ticket(
+            $ticketModel->id,
+            $ticketModel->title,
+            $ticketModel->description,
+            StatutTicket::fromString($ticketModel->statut),
+            PriorityTicket::fromString($ticketModel->priority),
+            new IdentiteUser(
+                $ticketModel->user->id,
+                $ticketModel->user->lastName,
+                $ticketModel->user->firstName,
+                $ticketModel->user->email,
+                $ticketModel->user->userType ?? 'final_user'
+            ),
+            $ticketModel->category_id,
+            new DateTime($ticketModel->created_at),
+            new DateTime($ticketModel->updated_at)
+        );
+        
+        if ($ticketModel->technician) {
+            $ticket->assignTechnician(new IdentiteUser(
+                $ticketModel->technician->id,
+                $ticketModel->technician->lastName,
+                $ticketModel->technician->firstName,
+                $ticketModel->technician->email,
+                $ticketModel->technician->userType ?? 'technician'
+            ));
+        }
+        
+        if ($ticketModel->resolution_date) {
+            $ticket->setResolutionDate(new DateTime($ticketModel->resolution_date));
+        }
+        
+        if ($ticketModel->solution) {
+            $ticket->setSolution($ticketModel->solution);
+        }
+        
+        if ($ticketModel->time_pass_total > 0) {
+            $ticket->setTimePass($ticketModel->time_pass_total);
+        }
+        
+        // Charger les commentaires si disponibles
+        if ($ticketModel->relationLoaded('comments')) {
+            foreach ($ticketModel->comments as $commentModel) {
+                $ticket->addComment($this->mapCommentModelToEntity($commentModel));
+            }
+        }
+        
+        // Add each attachment to the ticket
+        foreach ($attachments as $attachment) {
+            $ticket->addAttachment($attachment);
+        }
+        
+        return $ticket;
     }
     
     public function findAll(): array
@@ -96,18 +164,18 @@ class EloquentTicketRepository implements TicketRepositoryInterface
     
     public function update(Ticket $ticket): void
     {
-        $ticketData = $this->prepareTicketData($ticket);
-        
-        TicketModel::where('id', $ticket->getId())->update($ticketData);
-        
-        // Si de nouveaux commentaires ont été ajoutés, les enregistrer
-        $existingComments = CommentModel::where('ticket_id', $ticket->getId())->pluck('id')->toArray();
-        
-        foreach ($ticket->getComments() as $comment) {
-            if ($comment->getId() === 0 || !in_array($comment->getId(), $existingComments)) {
-                $this->addComment($comment, $ticket->getId());
-            }
+        $ticketModel = \App\Models\Ticket::find($ticket->getId());
+        if (!$ticketModel) {
+            throw new ModelNotFoundException('Ticket not found');
         }
+
+        // Directly copy values from entity to model
+        $ticketModel->title = $ticket->getTitle();
+        $ticketModel->description = $ticket->getDescription();
+        $ticketModel->priority = $ticket->getPriority()->toString();
+        $ticketModel->category_id = $ticket->getCategoryId();
+        
+        $ticketModel->save();
     }
     
     public function addComment(Comment $comment, ?int $ticketId = null): int
@@ -216,6 +284,52 @@ class EloquentTicketRepository implements TicketRepositoryInterface
     {
         return TicketModel::destroy($ticketId) > 0;
     }
+    public function addAttachment(Attachment $attachment): int
+    {
+        $attachmentModel = new \App\Models\Attachment([
+            'ticket_id' => $attachment->getTicketId(),
+            'file_name' => $attachment->getFileName(),
+            'file_path' => $attachment->getFilePath(),
+            'type_mime' => $attachment->getTypeMime(),
+            'file_size' => $attachment->getFileSize(),
+            'upload_date' => $attachment->getUploadDate()
+        ]);
+        
+        $attachmentModel->save();
+        
+        return $attachmentModel->id;
+    }
+    
+    /**
+     * Get all attachments for a ticket
+     */
+    public function getAttachmentsByTicketId(int $ticketId): array
+    {
+        $attachmentModels = \App\Models\Attachment::where('ticket_id', $ticketId)->get();
+        $attachments = [];
+        
+        foreach ($attachmentModels as $model) {
+            $attachments[] = new \App\Domains\Tickets\Entities\Attachment(
+                $model->id,
+                $model->ticket_id,
+                $model->file_name,
+                $model->file_path,
+                $model->type_mime,
+                $model->file_size,
+                new \DateTime($model->created_at)
+            );
+        }
+        
+        return $attachments;
+    }
+
+    /**
+     * Remove an attachment
+     */
+    public function removeAttachment(int $attachmentId): bool
+    {
+        return \App\Models\Attachment::destroy($attachmentId) > 0;
+    }
     
     
     // Convertit un modèle Eloquent de ticket en entité du domaine
@@ -251,6 +365,17 @@ class EloquentTicketRepository implements TicketRepositoryInterface
             $ticketModel->category_id,
             new DateTime($ticketModel->created_at)
         );
+        
+        if ($ticketModel->technician) {
+        $technician = new IdentiteUser(
+            $ticketModel->technician->id,
+            $ticketModel->technician->lastName,
+            $ticketModel->technician->firstName,
+            $ticketModel->technician->email,
+            $ticketModel->technician->userType ?? 'technician'
+        );
+        $ticket->assignTechnician($technician);
+    }
         
         if ($technician) {
             $ticket->assignTechnician($technician);

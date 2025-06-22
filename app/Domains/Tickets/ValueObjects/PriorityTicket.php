@@ -23,7 +23,7 @@ enum PriorityTicket
     public function toString(): string
     {
         return match($this) {
-            self::LOW => 'loz',
+            self::LOW => 'low',
             self::AVERAGE => 'average',
             self::HIGH => 'high',
             self::URGENT => 'urgent',

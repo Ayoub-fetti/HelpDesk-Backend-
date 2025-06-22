@@ -42,6 +42,8 @@ class RolesAndPermissionsSeeder extends Seeder
         $finalUserRole->givePermissionTo([
             'view tickets',
             'create tickets',
+            'delete tickets',
+            'edit tickets',
             'view comments',
             'add comments',
         ]);

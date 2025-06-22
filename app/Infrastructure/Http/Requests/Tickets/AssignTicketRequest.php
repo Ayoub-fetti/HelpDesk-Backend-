@@ -22,9 +22,9 @@ class AssignTicketRequest extends FormRequest
     {
         return [
             'technician_id' => 'required|integer|exists:users,id',
-            'technician_last_name' => 'required|string|max:255',
-            'technician_first_name' => 'required|string|max:255',
-            'technician_email' => 'required|email',
+            'technician_last_name' => 'nullable|string|max:255',
+            'technician_first_name' => 'nullable|string|max:255',
+            'technician_email' => 'nullable|email',
             'technician_phone' => 'nullable|string|max:20',
             'comment' => 'nullable|string',
         ];

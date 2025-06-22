@@ -6,6 +6,15 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/users', function () {
+        return response()->json([
+            'users' => \App\Models\User::with('roles')
+                ->select('id', 'firstName', 'lastName', 'email', 'user_type', 'departement', 'active', 'last_connection', 'specialization')
+                ->get()
+        ]);
+    });
+});
 
 Route::middleware('auth:sanctum')->get('/test-permission', function (Request $request) {
     $user = $request->user();

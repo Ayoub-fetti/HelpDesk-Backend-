@@ -7,26 +7,26 @@ class ReassignationTicketDTO
     public int $ticketId;
     public string $comment;
     
-// User information performing the reassignment    
+    // User information performing the reassignment    
     public int $userId;
     public string $userLastName;
     public string $userFirstName;
     public string $userEmail;
     public string $userType;
     
-// Information on the technician to assign    
+    // Information on the technician to assign    
     public int $technicianId;
-    public string $technicianLastName;
-    public string $technicianFirstName;
-    public string $technicianEmail;
-    public string $technicianPhone;
+    public ?string $technicianLastName;
+    public ?string $technicianFirstName;
+    public ?string $technicianEmail;
+    public ?string $technicianPhone;
     
     public function __construct(
         int $ticketId,
         int $technicianId,
-        string $technicianLastName,
-        string $technicianFirstName,
-        string $technicianEmail,
+        ?string $technicianLastName = null,
+        ?string $technicianFirstName = null,
+        ?string $technicianEmail = null,
         int $userId,
         string $userLastName,
         string $userFirstName,
@@ -37,9 +37,9 @@ class ReassignationTicketDTO
     ) {
         $this->ticketId = $ticketId;
         $this->technicianId = $technicianId;
-        $this->technicianLastName = $technicianLastName;
-        $this->technicianFirstName = $technicianFirstName;
-        $this->technicianEmail = $technicianEmail;
+        $this->technicianLastName = $technicianLastName ?? '';
+        $this->technicianFirstName = $technicianFirstName ?? '';
+        $this->technicianEmail = $technicianEmail ?? '';
         $this->technicianPhone = $technicianPhone;
         $this->userId = $userId;
         $this->userLastName = $userLastName;

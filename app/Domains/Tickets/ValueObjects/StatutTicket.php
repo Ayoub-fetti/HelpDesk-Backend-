@@ -16,7 +16,7 @@ enum StatutTicket
     {
         return match (strtolower($statut)) {
             'new' => self::NEW,
-            'assigned', '' => self::ASSIGNED,
+            'assigned' => self::ASSIGNED,
             'in_progress' => self::IN_PROGRESS,
             'on_hold' => self::ON_HOLD,
             'resolved' => self::RESOLVED,

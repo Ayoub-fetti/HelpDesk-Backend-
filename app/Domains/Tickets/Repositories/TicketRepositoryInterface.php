@@ -4,6 +4,7 @@ namespace App\Domains\Tickets\Repositories;
 
 use App\Domains\Tickets\Entities\Ticket;
 use App\Domains\Tickets\Entities\Comment;
+use App\Domains\Tickets\Entities\Attachment;
 use App\Domains\Tickets\ValueObjects\StatutTicket;
 use App\Domains\Shared\ValueObjects\IdentiteUtilisateur;
 
@@ -73,4 +74,8 @@ interface TicketRepositoryInterface
     // Supprimer un ticket
 
     public function delete(int $ticketId): bool;
+    
+    // Ajouter une pièce jointe à un ticket
+
+    public function addAttachment(Attachment $attachment): int;
 }

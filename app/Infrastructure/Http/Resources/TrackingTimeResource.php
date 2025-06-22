@@ -27,6 +27,7 @@ class TrackingTimeResource extends JsonResource
             'description' => $this->description,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'formatted_duration' => $this->additional['formatted_duration'] ?? null,
         ];
     }
 }

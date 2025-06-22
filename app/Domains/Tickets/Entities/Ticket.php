@@ -18,6 +18,7 @@ class Ticket
     private ?IdentiteUser $technician = null;
     private int $categoryId;
     private DateTime $creationDate;
+    private DateTime $updationDate;
     private ?DateTime $resolutionDate = null;
     private ?string $solution = null;
     private float $timePass = 0;
@@ -34,7 +35,8 @@ class Ticket
         PriorityTicket $priority,
         IdentiteUser $user,
         int $categoryId,
-        DateTime $creationDate
+        DateTime $creationDate,
+        DateTime $updationDate
     ) {
         $this->id = $id;
         $this->title = $title;
@@ -44,6 +46,7 @@ class Ticket
         $this->user = $user;
         $this->categoryId = $categoryId;
         $this->creationDate = $creationDate;
+        $this->updationDate = $updationDate;
     }
 
     // Getters et setters
@@ -125,7 +128,7 @@ class Ticket
     public function assignTechnician(IdentiteUser $technician): void
     {
         $this->technician = $technician;
-        $this->statut = StatutTicket::ASSIGNED;
+        // $this->statut = StatutTicket::ASSIGNED;
     }
 
     public function withdrawTechnician(): void
@@ -147,6 +150,10 @@ class Ticket
     public function getCreationDate(): DateTime
     {
         return $this->creationDate;
+    }
+    public function getUpdationDate(): DateTime
+    {
+        return $this->updationDate;
     }
 
     public function getResolutionDate(): ?DateTime

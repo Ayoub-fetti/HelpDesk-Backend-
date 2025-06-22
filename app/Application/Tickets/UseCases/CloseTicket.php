@@ -87,6 +87,6 @@ class CloseTicket
         $usersToNotify = array_merge($usersToNotify, $supervisors->all());
         
         // Send notifications
-        // Notification::send($usersToNotify, new TicketClosed($ticket, $user));
+        Notification::send($usersToNotify, new TicketClosed($ticket, $user));
     }
 }

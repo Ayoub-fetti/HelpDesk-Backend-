@@ -21,7 +21,11 @@ public function store(LoginRequest $request): JsonResponse
     $user = $request->user();
     $token = $user->createToken('API Token')->plainTextToken;
 
-    return response()->json(['token' => $token]);
+    return response()->json([
+    'message' => 'Logged in successfully',
+    'user' => $request->user(),
+    'token' => $token,
+]);
 }
 
     /**
