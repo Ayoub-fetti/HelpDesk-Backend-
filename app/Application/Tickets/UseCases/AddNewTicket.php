@@ -41,7 +41,8 @@ class AddNewTicket
             PriorityTicket::fromString($dto->priority),
             $user,
             $dto->categoryId,
-            new DateTime()
+            new DateTime(),  // creationDate
+            new DateTime()  
         );
 
         // Only assign a technician if a technician ID is provided
