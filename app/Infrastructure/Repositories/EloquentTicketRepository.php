@@ -363,7 +363,8 @@ class EloquentTicketRepository implements TicketRepositoryInterface
             PriorityTicket::fromString($ticketModel->priority),
             $user,
             $ticketModel->category_id,
-            new DateTime($ticketModel->created_at)
+            new DateTime($ticketModel->created_at),
+            new DateTime($ticketModel->updated_at)
         );
         
         if ($ticketModel->technician) {
