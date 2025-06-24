@@ -169,13 +169,23 @@ class EloquentTicketRepository implements TicketRepositoryInterface
             throw new ModelNotFoundException('Ticket not found');
         }
 
-        // Directly copy values from entity to model
-        $ticketModel->title = $ticket->getTitle();
-        $ticketModel->description = $ticket->getDescription();
-        $ticketModel->priority = $ticket->getPriority()->toString();
-        $ticketModel->category_id = $ticket->getCategoryId();
+        // Use the prepareTicketData method to get all fields
+        $ticketData = $this->prepareTicketData($ticket);
         
+        // Update all fields at once
+        $ticketModel->fill($ticketData);
+        
+        // Save the updated model
         $ticketModel->save();
+            // Get existing comment IDs for this ticket
+        $existingCommentIds = $ticketModel->comments()->pluck('id')->toArray();
+        
+        // Save any new comments (ones without IDs or with IDs not in the existing set)
+        foreach ($ticket->getComments() as $comment) {
+            if ($comment->getId() === 0 || !in_array($comment->getId(), $existingCommentIds)) {
+                $this->addComment($comment, $ticket->getId());
+            }
+        }
     }
     
     public function addComment(Comment $comment, ?int $ticketId = null): int
