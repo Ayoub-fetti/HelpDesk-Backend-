@@ -10,11 +10,11 @@ echo "Database is ready!"
 # Generate application key if not set
 php artisan key:generate --force
 
-# Optimize (clear and rebuild caches)
-php artisan optimize
+# claer the config 
+php artisan config:cache
 
 # Run migrations and seed database
-php artisan migrate --seed --force
+php artisan migrate --force
 
 echo "Starting Laravel server..."
 # Start the Laravel server
