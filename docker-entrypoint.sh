@@ -11,7 +11,7 @@ echo "Database is ready!"
 php artisan key:generate --force
 
 # claer the config 
-php artisan config:cache
+php artisan optimize
 
 # Run migrations and seed database
 php artisan migrate --force
