@@ -10,8 +10,12 @@ echo "Database is ready!"
 # Generate application key if not set
 php artisan key:generate --force
 
-# claer the config 
-php artisan optimize
+# clear the config 
+php artisan config:clear
+php artisan cache:clear
+
+
+
 
 # Run migrations and seed database
 php artisan migrate --force
